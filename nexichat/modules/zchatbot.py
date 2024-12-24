@@ -1,4 +1,3 @@
-
 import random
 from pymongo import MongoClient
 from pyrogram import Client, filters
@@ -32,12 +31,15 @@ from nexichat.modules.helpers import (
 )
 import asyncio
 
+# Initialize the translator
 translator = GoogleTranslator()
 
+# Database collections
 lang_db = db.ChatLangDb.LangCollection
 status_db = db.chatbot_status_db.status
 abuse_words_db = db.abuse_words_db.words
 
+# Caches and blocklists
 replies_cache = []
 abuse_cache = []
 blocklist = {}
@@ -45,24 +47,31 @@ message_counts = {}
 
 
 async def load_abuse_cache():
+    """Load abuse words into cache."""
     global abuse_cache
     abuse_cache = [entry['word'] for entry in await abuse_words_db.find().to_list(length=None)]
 
+
 async def add_abuse_word(word: str):
+    """Add a new abuse word to the database and cache."""
     global abuse_cache
     if word not in abuse_cache:
         await abuse_words_db.insert_one({"word": word})
         abuse_cache.append(word)
 
+
 async def is_abuse_present(text: str):
+    """Check if the given text contains any abuse words."""
     global abuse_cache
     if not abuse_cache:
         await load_abuse_cache()
     text_lower = text.lower()
     return any(word in text_lower for word in abuse_list) or any(word in text_lower for word in abuse_cache)
 
+
 @nexichat.on_message(filters.command("block") & filters.user(OWNER_ID))
 async def block_word(client: Client, message: Message):
+    """Block a word by adding it to the abuse list."""
     try:
         if len(message.command) < 2:
             await message.reply_text("**Usage:** `/block <word>`\nAdd a word to the abuse list.")
@@ -73,8 +82,10 @@ async def block_word(client: Client, message: Message):
     except Exception as e:
         await message.reply_text(f"Error: {e}")
 
+
 @nexichat.on_message(filters.command("unblock") & filters.user(OWNER_ID))
 async def unblock_word(client: Client, message: Message):
+    """Unblock a word by removing it from the abuse list."""
     try:
         if len(message.command) < 2:
             await message.reply_text("**Usage:** `/unblock <word>`\nRemove a word from the abuse list.")
@@ -90,8 +101,10 @@ async def unblock_word(client: Client, message: Message):
     except Exception as e:
         await message.reply_text(f"Error: {e}")
 
+
 @nexichat.on_message(filters.command("blocked") & filters.user(OWNER_ID))
 async def list_blocked_words(client: Client, message: Message):
+    """List all blocked words."""
     try:
         global abuse_cache
         if not abuse_cache:
@@ -104,7 +117,9 @@ async def list_blocked_words(client: Client, message: Message):
     except Exception as e:
         await message.reply_text(f"Error: {e}")
 
+
 async def save_reply(original_message: Message, reply_message: Message):
+    """Save a reply message to the database."""
     global replies_cache
     try:
         if (original_message.text and await is_abuse_present(original_message.text)) or \
@@ -148,13 +163,16 @@ async def save_reply(original_message: Message, reply_message: Message):
     except Exception as e:
         print(f"Error in save_reply: {e}")
 
+
 async def load_replies_cache():
+    """Load replies into cache."""
     global replies_cache
     replies_cache = await chatai.find().to_list(length=None)
     await load_abuse_cache()
 
 
 async def get_reply(word: str):
+    """Retrieve a reply for the given word."""
     global replies_cache
     if not replies_cache:
         await load_replies_cache()
@@ -166,12 +184,14 @@ async def get_reply(word: str):
 
 
 async def get_chat_language(chat_id):
+    """Get the language for the given chat."""
     chat_lang = await lang_db.find_one({"chat_id": chat_id})
     return chat_lang["language"] if chat_lang and "language" in chat_lang else None
-    
-            
+
+
 @nexichat.on_message(filters.incoming)
 async def chatbot_response(client: Client, message: Message):
+    """Handle incoming messages and provide chatbot responses."""
     global blocklist, message_counts
     try:
         user_id = message.from_user.id
