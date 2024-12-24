@@ -1,12 +1,20 @@
-FROM python:latest
+FROM python:3.9-slim
 
-RUN apt-get update -y && apt-get upgrade -y
+# Install dependencies and upgrade pip
+RUN apt-get update -y && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends gcc && \
+    pip3 install --no-cache-dir -U pip && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install -U pip
+# Set working directory
+WORKDIR /app
 
+# Copy application files
 COPY . /app/
-WORKDIR /app/
-RUN pip3 install --upgrade pip
-RUN pip3 install -U -r requirements.txt
 
-CMD bash start
+# Install Python dependencies
+RUN pip3 install --no-cache-dir -U -r requirements.txt
+
+# Start the application
+CMD ["bash", "start"]
