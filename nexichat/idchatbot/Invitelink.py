@@ -1,34 +1,33 @@
 import os
-
 from pyrogram import Client, filters
-from pyrogram.errors import FloodWait
+from pyrogram.errors import FloodWait, ChatAdminRequired
 from pyrogram.types import Message
 from nexichat.idchatbot.helpers import is_owner
-from nexichat import nexichat
-from config import OWNER_ID
 
+async def is_user_owner(client: Client, user_id):
+    clone_id = (await client.get_me()).id
+    return await is_owner(clone_id, user_id)
 
 @Client.on_message(filters.command("givelink", prefixes=[".", "/"]))
 async def give_link_command(client, message):
-    chat = message.chat.id
-    bot_id = client.me.id
-    clone_id = (await client.get_me()).id
-    user_id = message.from_user.id
-    if not await is_owner(clone_id, user_id):
+    if not await is_user_owner(client, message.from_user.id):
         await message.reply_text("You don't have permission to use this command on this bot.")
         return
-    link = await client.export_chat_invite_link(chat)
-    await message.reply_text(f"**Here's the invite link for this chat:**\n\n{link}")
 
+    try:
+        link = await client.export_chat_invite_link(message.chat.id)
+        await message.reply_text(f"**Here's the invite link for this chat:**\n\n{link}")
+    except ChatAdminRequired:
+        await message.reply_text("**Error: I need to be an admin with invite link permissions to generate the link.**")
+    except Exception as e:
+        await message.reply_text(f"**Error:** {str(e)}")
 
 @Client.on_message(filters.command(["link", "invitelink"], prefixes=["/", "!", "%", ",", ".", "@", "#"]))
 async def link_command_handler(client: Client, message: Message):
-    bot_id = client.me.id
-    clone_id = (await client.get_me()).id
-    user_id = message.from_user.id
-    if not await is_owner(clone_id, user_id):
+    if not await is_user_owner(client, message.from_user.id):
         await message.reply_text("You don't have permission to use this command on this bot.")
         return
+
     if len(message.command) != 2:
         await message.reply("**Invalid usage. Correct format: /link group_id**")
         return
@@ -39,7 +38,7 @@ async def link_command_handler(client: Client, message: Message):
     try:
         chat = await client.get_chat(int(group_id))
 
-        if chat is None:
+        if not chat:
             await message.reply("**Unable to get information for the specified group ID.**")
             return
 
@@ -72,12 +71,11 @@ async def link_command_handler(client: Client, message: Message):
         await client.send_document(
             chat_id=message.chat.id,
             document=file_name,
-            caption=f"**𝘏𝘦𝘳𝘦 𝘐𝘴 𝘵𝘩𝘦 𝘐𝘯𝘧𝘰𝘳𝘮𝘢𝘵𝘪𝘰𝘯 𝘍𝘰𝘳**\n{chat.title}\n\n**𝘛𝘩𝘦 𝘎𝘳𝘰𝘶𝘱 𝘐𝘯𝘧𝘰𝘳𝘮𝘢𝘵𝘪𝘰𝘯 𝘚𝘤𝘳𝘢𝘱𝘦𝘥 𝘉𝘺 : @{client.username}**",
+            caption=f"**Here is the information for {chat.title}:**\n\n**The group information is as follows:**"
         )
 
     except Exception as e:
         await message.reply(f"**Error:** {str(e)}")
-
     finally:
         if os.path.exists(file_name):
             os.remove(file_name)
