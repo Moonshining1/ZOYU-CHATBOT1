@@ -3,7 +3,7 @@ from nexichat import nexichat
 from pyrogram import Client, filters
 
 START = """**
-{} 𝚝𝚑𝚎 𝕤𝕦𝕡𝕖𝕣𝕘𝕒𝕤𝕥 𝕔𝕙𝕒𝕥𝕓𝕠𝕥 💞
+{} 𝚝𝚑𝚎 angle 💞
     
 ➪ 𝚜𝚞𝚙𝚙𝚘𝚛𝚝 𝚝𝚎𝚡𝚝, 𝚝𝚒𝚌𝚔𝚎𝚛, 𝚙𝚑𝚘𝚝𝚘, 𝚟𝚒𝚍𝚎𝚘...
 ➪ 𝚖𝚞𝚕𝚝𝚒-𝚕𝚊𝚗𝚐𝚞𝚊𝚐𝚎 𝟵𝚘𝚛 𝚎𝚊𝚌𝚑 𝚌𝚑𝚊𝚝 /setlang
@@ -88,4 +88,4 @@ ABOUT_READ = f"""**
 **Click on the buttons given below for getting help and info about [{nexichat.name}](https://t.me/{nexichat.username}).**
 """
 
-Would you like to proceed with submitting a pull request with these changes?
+#Would you like to proceed with submitting a pull request with these changes?
