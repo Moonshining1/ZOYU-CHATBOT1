@@ -5,15 +5,12 @@ import time
 import psutil
 import config
 import os
-from nexichat import _boot_
-from nexichat import get_readable_time
+from nexichat import _boot_, get_readable_time, mongo, CLONE_OWNERS, db
 from nexichat.mplugin.helpers import is_owner
-from nexichat import mongo
 from datetime import datetime
 from pymongo import MongoClient
 from pyrogram.enums import ChatType
 from pyrogram import Client, filters
-from nexichat import CLONE_OWNERS, db
 from config import OWNER_ID, MONGO_URL, OWNER_USERNAME
 from pyrogram.errors import FloodWait, ChatAdminRequired
 from nexichat.database.chats import get_served_chats, add_served_chat
@@ -21,38 +18,22 @@ from nexichat.database.users import get_served_users, add_served_user
 from nexichat.database.clonestats import get_served_cchats, get_served_cusers, add_served_cuser, add_served_cchat
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery
 from nexichat.mplugin.helpers import (
-    START,
-    START_BOT,
-    PNG_BTN,
-    CLOSE_BTN,
-    HELP_BTN,
-    HELP_BUTN,
-    HELP_READ,
-    HELP_START,
-    SOURCE_READ,
+    START, START_BOT, PNG_BTN, CLOSE_BTN, HELP_BTN, HELP_BUTN, HELP_READ, HELP_START, SOURCE_READ,
 )
+
+LOGGER = logging.getLogger(__name__)
 
 OK = "**ʜᴇʏ👀**"
 AUTO_MSG = f"""{os.getenv("AUTO_MSG")}""" if os.getenv("AUTO_MSG") else OK
-GSTART = """**ʜᴇʏ ᴅᴇᴀʀ {}**\n\n**ᴛʜᴀɴᴋs ғᴏʀ sᴛᴀʀᴛ ᴍᴇ ɪɴ ɢʀᴏᴜᴘ ʏᴏᴜ ᴄᴀɴ ᴄʜᴀɴɢᴇ ʟᴀɴɢᴜᴀɢᴇ ʙʏ ᴄʟɪᴄᴋ ᴏɴ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴs.**\n**ᴄʟɪᴄᴋ ᴀɴᴅ sᴇʟᴇᴄᴛ ʏᴏᴜʀ ғᴀᴠᴏᴜʀɪᴛᴇ ʟᴀɴɢᴜᴀɢᴇ ᴛᴏ sᴇᴛ ᴄʜᴀᴛ ʟᴀɴɢᴜᴀɢᴇ ғᴏʀ ʙᴏᴛ ʀᴇᴘʟʏ.**\n\n**ᴛʜᴀɴᴋ ʏᴏᴜ ᴘʟᴇᴀsᴇ ᴇɴɪᴏʏ.**"""
+GSTART = """**ʜᴇʏ ᴅᴇᴀʀ {}**\n\n**ᴛʜᴀɴᴋs ғᴏʀ sᴛᴀʀᴛ ᴍᴇ ɪɴ ɢʀᴏᴜᴘ ʏᴏᴜ ᴄᴀɴ ᴄʜᴀɴɢᴇ ʟᴀɴɢᴜᴀɢᴇ ʙʏ ᴄʟɪᴄᴋ ᴏɴ ɢɪᴠᴇɴ ..."""
 STICKER = [
     "CAACAgUAAx0CYlaJawABBy4vZaieO6T-Ayg3mD-JP-f0yxJngIkAAv0JAALVS_FWQY7kbQSaI-geBA",
     "CAACAgUAAx0CYlaJawABBy4rZaid77Tf70SV_CfjmbMgdJyVD8sAApwLAALGXCFXmCx8ZC5nlfQeBA",
     "CAACAgUAAx0CYlaJawABBy4jZaidvIXNPYnpAjNnKgzaHmh3cvoAAiwIAAIda2lVNdNI2QABHuVVHgQ",
 ]
 
-
 EMOJIOS = [
-    "💣",
-    "💥",
-    "🪄",
-    "🧨",
-    "⚡",
-    "🤡",
-    "👻",
-    "🎃",
-    "🎩",
-    "🕊",
+    "💣", "💥", "🪄", "🧨", "⚡", "🤡", "👻", "🎃", "🎩", "🕊",
 ]
 
 BOT = "https://files.catbox.moe/0kpdw9.jpg"
@@ -73,81 +54,72 @@ IMG = [
     "https://files.catbox.moe/rkdx6x.jpg",
 ]
 
-
-
-from nexichat import db
-
 chatai = db.Word.WordDb
 lang_db = db.ChatLangDb.LangCollection
 status_db = db.ChatBotStatusDb.StatusCollection
 cloneownerdb = db.clone_owners
 
 async def get_clone_owner(bot_id):
-    data = await cloneownerdb.find_one({"bot_id": bot_id})
-    if data:
-        return data["user_id"]
-    return None
-
+    try:
+        data = await cloneownerdb.find_one({"bot_id": bot_id})
+        return data["user_id"] if data else None
+    except Exception as e:
+        LOGGER.error(f"Error fetching clone owner: {e}")
+        return None
 
 async def bot_sys_stats():
     bot_uptime = int(time.time() - _boot_)
-    cpu = psutil.cpu_percent(interval=0.5)
-    mem = psutil.virtual_memory().percent
-    disk = psutil.disk_usage("/").percent
-    UP = f"{get_readable_time((bot_uptime))}"
-    CPU = f"{cpu}%"
-    RAM = f"{mem}%"
-    DISK = f"{disk}%"
-    return UP, CPU, RAM, DISK
-    
+    try:
+        cpu = psutil.cpu_percent(interval=0.5)
+        mem = psutil.virtual_memory().percent
+        disk = psutil.disk_usage("/").percent
+    except Exception as e:
+        LOGGER.error(f"Error fetching system stats: {e}")
+        cpu, mem, disk = 0, 0, 0
+    return get_readable_time(bot_uptime), f"{cpu}%", f"{mem}%", f"{disk}%"
 
 async def set_default_status(chat_id):
     try:
         if not await status_db.find_one({"chat_id": chat_id}):
             await status_db.insert_one({"chat_id": chat_id, "status": "enabled"})
     except Exception as e:
-        print(f"Error setting default status for chat {chat_id}: {e}")
-
-
-
-
+        LOGGER.error(f"Error setting default status for chat {chat_id}: {e}")
 
 @Client.on_message(filters.new_chat_members)
 async def welcomejej(client, message: Message):
     chat = message.chat
     bot_id = client.me.id
-    await add_served_cchat(bot_id, message.chat.id)
-    await add_served_chat(message.chat.id)
-    await set_default_status(message.chat.id)
+    await add_served_cchat(bot_id, chat.id)
+    await add_served_chat(chat.id)
+    await set_default_status(chat.id)
     users = len(await get_served_cusers(bot_id))
     chats = len(await get_served_cchats(bot_id))
     try:
         for member in message.new_chat_members:
             if member.id == client.me.id:
                 try:
-                    reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("sᴇʟᴇᴄᴛ ʟᴀɴɢᴜᴀɢᴇ", callback_data="choose_lang")]])    
-                    await message.reply_text(text="**тнαикѕ ꜰᴏʀ ᴀᴅᴅɪɴɢ ᴍᴇ ɪɴ ᴛʜɪꜱ ɢʀᴏᴜᴩ.**\n\n**ᴋɪɴᴅʟʏ  ꜱᴇʟᴇᴄᴛ  ʙᴏᴛ  ʟᴀɴɢᴜᴀɢᴇ  ꜰᴏʀ  ᴛʜɪꜱ  ɢʀᴏᴜᴩ  ʙʏ  ᴛʏᴩᴇ  ☞  /lang**", reply_markup=reply_markup)
+                    reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("sᴇʟᴇᴄᴛ ʟᴀɴɢᴜᴀɢᴇ", callback_data="choose_lang")]])
+                    await message.reply_text(text="**тнαикѕ ꜰᴏʀ ᴀᴅᴅɪɴɢ ᴍᴇ ɪɴ ᴛʜɪꜱ ɢʀᴏᴜᴩ.**\n\n**ᴋɪɴᴅʟʏ  ꜱᴇʟᴇᴄᴛ  ʙᴏᴛ  ʟᴀɴɢᴜᴀɢ...**", reply_markup=reply_markup)
                     await message.reply_text(f"**{AUTO_MSG}**")
                 except Exception as e:
-                    print(f"{e}")
-                    pass
+                    LOGGER.error(f"Error sending welcome message: {e}")
                 try:
-                    invitelink = await client.export_chat_invite_link(message.chat.id)
+                    invitelink = await client.export_chat_invite_link(chat.id)
                     link = f"[ɢᴇᴛ ʟɪɴᴋ]({invitelink})"
                 except ChatAdminRequired:
                     link = "No Link"
+                except Exception as e:
+                    LOGGER.error(f"Error exporting chat invite link: {e}")
+                    link = "No Link"
                 
                 try:
-                    groups_photo = await client.download_media(
-                        chat.photo.big_file_id, file_name=f"chatpp{chat.id}.png"
-                    )
-                    chat_photo = (
-                        groups_photo if groups_photo else "https://envs.sh/IL_.jpg"
-                    )
+                    groups_photo = await client.download_media(chat.photo.big_file_id, file_name=f"chatpp{chat.id}.png")
+                    chat_photo = groups_photo if groups_photo else "https://envs.sh/IL_.jpg"
                 except AttributeError:
                     chat_photo = "https://envs.sh/IL_.jpg"
                 except Exception as e:
-                    pass
+                    LOGGER.error(f"Error downloading chat photo: {e}")
+                    chat_photo = "https://envs.sh/IL_.jpg"
 
                 count = await client.get_chat_members_count(chat.id)
                 username = chat.username if chat.username else "𝐏ʀɪᴠᴀᴛᴇ 𝐆ʀᴏᴜᴘ"
@@ -163,25 +135,18 @@ async def welcomejej(client, message: Message):
                 )
 
                 try:
-                    bot_id = client.me.id
                     owner_id = await get_clone_owner(bot_id)
-                    
                     if owner_id:
                         await client.send_photo(
                             int(owner_id),
                             photo=chat_photo,
                             caption=msg,
-                            reply_markup=InlineKeyboardMarkup(
-                                [[InlineKeyboardButton(f"{message.from_user.first_name}", user_id=message.from_user.id)]]
-                            )
+                            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(f"{message.from_user.first_name}", user_id=message.from_user.id)]])
                         )
                 except Exception as e:
-                    print(f"Err: {e}")
+                    LOGGER.error(f"Error sending photo to owner: {e}")
     except Exception as e:
-        print(f"Err: {e}")
-
-
-
+        LOGGER.error(f"Error in welcome handler: {e}")
 
 @Client.on_message(filters.command(["start", "aistart"]))
 async def start(client: Client, m: Message):
@@ -190,12 +155,9 @@ async def start(client: Client, m: Message):
     chats = len(await get_served_cchats(bot_id))
     
     if m.chat.type == ChatType.PRIVATE:
-        accha = await m.reply_text(
-            text=random.choice(EMOJIOS),
-        )
-        
+        accha = await m.reply_text(text=random.choice(EMOJIOS))
         animation_steps = [
-            "⚡ᴅ", "⚡ᴅι", "⚡ᴅιи", "⚡ᴅιиg", "⚡ᴅιиg ᴅ", "⚡ᴅιиg ᴅσ", "⚡ᴅιиg ᴅσи", "⚡ᴅιиg ᴅσиg", "⚡ᴅιиg ᴅσиg ꨄ︎", "⚡sᴛαятɪɴɢ..."
+            "⚡ᴅ", "⚡ᴅι", "⚡ᴅιи", "⚡ᴅιиg", "⚡ᴅιиg ᴅ", "⚡ᴅιиg ᴅσ", "⚡ᴅιиg ᴅσи", "⚡ᴅιиg ᴅσиg", "⚡ᴅιиg ᴅσиg ꨄ︎", "⚡sᴛαятɪиg..."
         ]
 
         for step in animation_steps:
@@ -210,26 +172,23 @@ async def start(client: Client, m: Message):
             try:
                 userss_photo = await client.download_media(m.chat.photo.big_file_id)
                 await umm.delete()
-                if userss_photo:
-                    chat_photo = userss_photo
-            except AttributeError:
+                chat_photo = userss_photo if userss_photo else BOT
+            except Exception as e:
+                LOGGER.error(f"Error downloading user photo: {e}")
                 chat_photo = BOT  
 
-        users = len(await get_served_cusers(bot_id))
-        chats = len(await get_served_cchats(bot_id))
         UP, CPU, RAM, DISK = await bot_sys_stats()
         await m.reply_photo(photo=chat_photo, caption=START.format(users, chats, UP), reply_markup=InlineKeyboardMarkup(START_BOT))
         await m.reply_text(f"**{AUTO_MSG}**")
         await add_served_cuser(bot_id, m.chat.id) 
         await add_served_user(m.chat.id)
         keyboard = InlineKeyboardMarkup([[InlineKeyboardButton(f"{m.chat.first_name}", user_id=m.chat.id)]])
-
         owner_id = await get_clone_owner(bot_id) 
         if owner_id:
             await client.send_photo(
                 int(owner_id),
                 photo=chat_photo,
-                caption=f"{m.from_user.mention} ʜᴀs sᴛᴀʀᴛᴇᴅ ʙᴏᴛ. \n\n**ɴᴀᴍᴇ :** {m.chat.first_name}\n**ᴜsᴇʀɴᴀᴍᴇ :** @{m.chat.username}\n**ɪᴅ :** {m.chat.id}\n\n**ᴛᴏᴛᴀʟ ᴜsᴇʀs :** {users}",
+                caption=f"{m.from_user.mention} ʜᴀs sᴛᴀʀᴛᴇᴅ ʙᴏᴛ. \n\n**ɴᴀᴍᴇ :** {m.chat.first_name}\n**ᴜsᴇʀɴᴀᴍᴇ :** @{m.chat.username}\n**ɪᴅ :** {m.chat.id}\n",
                 reply_markup=keyboard
             )
         
@@ -247,12 +206,11 @@ async def start(client: Client, m: Message):
 async def help(client: Client, m: Message):
     bot_id = client.me.id
     if m.chat.type == ChatType.PRIVATE:
-        hmm = await m.reply_photo(
+        await m.reply_photo(
             photo=random.choice(IMG),
             caption=HELP_READ,
             reply_markup=InlineKeyboardMarkup(HELP_BTN),
         )
-
     else:
         await m.reply_photo(
             photo=random.choice(IMG),
@@ -262,7 +220,6 @@ async def help(client: Client, m: Message):
         await add_served_cchat(bot_id, m.chat.id)
         await add_served_chat(m.chat.id)
 
-
 @Client.on_message(filters.command("repo"))
 async def repo(client: Client, m: Message):
     await m.reply_text(
@@ -270,9 +227,6 @@ async def repo(client: Client, m: Message):
         reply_markup=InlineKeyboardMarkup(CLOSE_BTN),
         disable_web_page_preview=True,
     )
-
-
-
 
 @Client.on_message(filters.command("ping"))
 async def ping(client: Client, message: Message):
@@ -286,7 +240,7 @@ async def ping(client: Client, message: Message):
 
     ms = (datetime.now() - start).microseconds / 1000
     await loda.edit_text(
-        text=f"нey вαву!!\n{(await client.get_me()).mention} ᴄʜᴀᴛʙᴏᴛ ιѕ alιve 🥀 αnd worĸιng ғιne wιтн a pιng oғ\n\n**➥** `{ms}` ms\n**➲ ᴄᴘᴜ:** {CPU}\n**➲ ʀᴀᴍ:** {RAM}\n**➲ ᴅɪsᴋ:** {DISK}\n**➲ ᴜᴘᴛɪᴍᴇ »** {UP}\n\n<b>||**๏ мαdє ωιтн ❣️ ву [˹𝐊ɪɴɢᴅᴏᴍ˼](https://t.me/{OWNER_USERNAME}) **||</b>",
+        text=f"нey вαву!!\n{(await client.get_me()).mention} ᴄʜᴀᴛʙᴏᴛ ιѕ alιve 🥀 αnd worĸιng ғιne wιтн a pιng oғ\n\n**➥** `{ms}` ms\n**➲ ᴄᴘᴜ:** {CPU}\n**➲ ʀαm:** {RAM}\n**➲ ᴅιѕĸ:** {DISK}",
         reply_markup=InlineKeyboardMarkup(PNG_BTN),
     )
     if message.chat.type == ChatType.PRIVATE:
@@ -295,7 +249,6 @@ async def ping(client: Client, message: Message):
     else:
         await add_served_cchat(bot_id, message.chat.id)
         await add_served_chat(message.chat.id)
-
 
 @Client.on_message(filters.command("stats"))
 async def stats(cli: Client, message: Message):
@@ -310,12 +263,6 @@ async def stats(cli: Client, message: Message):
 ➻ **Users:** {users}"""
     )
 
-
-from pyrogram.enums import ParseMode
-
-from nexichat import nexichat
-
-
 @Client.on_message(filters.command("id"))
 async def getid(client, message):
     chat = message.chat
@@ -329,15 +276,11 @@ async def getid(client, message):
     if not message.command:
         message.command = message.text.split()
 
-    if not message.command:
-        message.command = message.text.split()
-
     if len(message.command) == 2:
         try:
             split = message.text.split(None, 1)[1].strip()
             user_id = (await client.get_users(split)).id
             text += f"**[ᴜsᴇʀ ɪᴅ:](tg://user?id={user_id})** `{user_id}`\n"
-
         except Exception:
             return await message.reply_text("ᴛʜɪs ᴜsᴇʀ ᴅᴏᴇsɴ'ᴛ ᴇxɪsᴛ.", quote=True)
 
@@ -353,173 +296,6 @@ async def getid(client, message):
 
     if reply and reply.forward_from_chat:
         text += f"ᴛʜᴇ ғᴏʀᴡᴀʀᴅᴇᴅ ᴄʜᴀɴɴᴇʟ, {reply.forward_from_chat.title}, ʜᴀs ᴀɴ ɪᴅ ᴏғ `{reply.forward_from_chat.id}`\n\n"
-        print(reply.forward_from_chat)
 
     if reply and reply.sender_chat:
-        text += f"ɪᴅ ᴏғ ᴛʜᴇ ʀᴇᴘʟɪᴇᴅ ᴄʜᴀᴛ/ᴄʜᴀɴɴᴇʟ, ɪs `{reply.sender_chat.id}`"
-        print(reply.sender_chat)
-
-    await message.reply_text(
-        text,
-        disable_web_page_preview=True,
-        parse_mode=ParseMode.DEFAULT,
-    )
-
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-AUTO_SLEEP = 5
-IS_BROADCASTING = False
-broadcast_lock = asyncio.Lock()
-
-
-@Client.on_message(filters.command(["broadcast", "gcast"]))
-async def broadcast_message(client, message):
-    global IS_BROADCASTING
-    bot_id = (await client.get_me()).id
-    user_id = message.from_user.id
-    if not await is_owner(bot_id, user_id):
-        await message.reply_text("You don't have permission to use this command on this bot.")
-        return
-        
-    async with broadcast_lock:
-        if IS_BROADCASTING:
-            return await message.reply_text(
-                "A broadcast is already in progress. Please wait for it to complete."
-            )
-
-        IS_BROADCASTING = True
-        try:
-            query = message.text.split(None, 1)[1].strip()
-        except IndexError:
-            query = message.text.strip()
-        except Exception as eff:
-            return await message.reply_text(
-                f"**Error**: {eff}"
-            )
-        try:
-            if message.reply_to_message:
-                broadcast_content = message.reply_to_message
-                broadcast_type = "reply"
-                flags = {
-                    "-pin": "-pin" in query,
-                    "-pinloud": "-pinloud" in query,
-                    "-nogroup": "-nogroup" in query,
-                    "-user": "-user" in query,
-                }
-            else:
-                if len(message.command) < 2:
-                    return await message.reply_text(
-                        "**Please provide text after the command or reply to a message for broadcasting.**"
-                    )
-                
-                flags = {
-                    "-pin": "-pin" in query,
-                    "-pinloud": "-pinloud" in query,
-                    "-nogroup": "-nogroup" in query,
-                    "-user": "-user" in query,
-                }
-
-                for flag in flags:
-                    query = query.replace(flag, "").strip()
-
-                if not query:
-                    return await message.reply_text(
-                        "Please provide a valid text message or a flag: -pin, -nogroup, -pinloud, -user"
-                    )
-
-                
-                broadcast_content = query
-                broadcast_type = "text"
-            
-
-            await message.reply_text("**Started broadcasting...**")
-
-            if not flags.get("-nogroup", False):
-                sent = 0
-                pin_count = 0
-                chats = await get_served_cchats(bot_id)
-
-                for chat in chats:
-                    chat_id = int(chat["chat_id"])
-                    if chat_id == message.chat.id:
-                        continue
-                    try:
-                        if broadcast_type == "reply":
-                            m = await client.forward_messages(
-                                chat_id, message.chat.id, [broadcast_content.id]
-                            )
-                        else:
-                            m = await client.send_message(
-                                chat_id, text=broadcast_content
-                            )
-                        sent += 1
-
-                        if flags.get("-pin", False) or flags.get("-pinloud", False):
-                            try:
-                                await m.pin(
-                                    disable_notification=flags.get("-pin", False)
-                                )
-                                pin_count += 1
-                            except Exception as e:
-                                continue
-
-                    except FloodWait as e:
-                        flood_time = int(e.value)
-                        logger.warning(
-                            f"FloodWait of {flood_time} seconds encountered for chat {chat_id}."
-                        )
-                        if flood_time > 200:
-                            logger.info(
-                                f"Skipping chat {chat_id} due to excessive FloodWait."
-                            )
-                            continue
-                        await asyncio.sleep(flood_time)
-                    except Exception as e:
-                        
-                        continue
-
-                await message.reply_text(
-                    f"**Broadcasted to {sent} chats and pinned in {pin_count} chats.**"
-                )
-
-            if flags.get("-user", False):
-                susr = 0
-                users = await get_served_cusers(bot_id)
-
-                for user in users:
-                    user_id = int(user["user_id"])
-                    try:
-                        if broadcast_type == "reply":
-                            m = await client.forward_messages(
-                                user_id, message.chat.id, [broadcast_content.id]
-                            )
-                        else:
-                            m = await client.send_message(
-                                user_id, text=broadcast_content
-                            )
-                        susr += 1
-
-                    except FloodWait as e:
-                        flood_time = int(e.value)
-                        logger.warning(
-                            f"FloodWait of {flood_time} seconds encountered for user {user_id}."
-                        )
-                        if flood_time > 200:
-                            logger.info(
-                                f"Skipping user {user_id} due to excessive FloodWait."
-                            )
-                            continue
-                        await asyncio.sleep(flood_time)
-                    except Exception as e:
-                        
-                        continue
-
-                await message.reply_text(f"**Broadcasted to {susr} users.**")
-
-        finally:
-            IS_BROADCASTING = False
-
-
-    
+        text += f"ɪᴅ ᴏғ ᴛʜᴇ ʀᴇᴘʟɪᴇᴅ ᴄʜᴀᴛ/ᴄʜᴀɴɴᴇʟ
