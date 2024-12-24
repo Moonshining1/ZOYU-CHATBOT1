@@ -3,31 +3,31 @@ from nexichat import db
 chatsdb = db.chatsdb
 
 async def get_served_chats() -> list:
-    chats = chatsdb.find({"chat_id": {"$lt": 0}})
-    if not chats:
+    try:
+        chats = chatsdb.find({"chat_id": {"$lt": 0}})
+        return await chats.to_list(length=None)
+    except Exception as e:
+        print(f"Error in get_served_chats: {e}")
         return []
-    chats_list = []
-    for chat in await chats.to_list(length=1000000000):
-        chats_list.append(chat)
-    return chats_list
-
 
 async def is_served_chat(chat_id: int) -> bool:
-    chat = await chatsdb.find_one({"chat_id": chat_id})
-    if not chat:
+    try:
+        chat = await chatsdb.find_one({"chat_id": chat_id})
+        return chat is not None
+    except Exception as e:
+        print(f"Error in is_served_chat: {e}")
         return False
-    return True
-
 
 async def add_served_chat(chat_id: int):
-    is_served = await is_served_chat(chat_id)
-    if is_served:
-        return
-    return await chatsdb.insert_one({"chat_id": chat_id})
-
+    try:
+        if not await is_served_chat(chat_id):
+            await chatsdb.insert_one({"chat_id": chat_id})
+    except Exception as e:
+        print(f"Error in add_served_chat: {e}")
 
 async def remove_served_chat(chat_id: int):
-    is_served = await is_served_chat(chat_id)
-    if not is_served:
-        return
-    return await chatsdb.delete_one({"chat_id": chat_id})
+    try:
+        if await is_served_chat(chat_id):
+            await chatsdb.delete_one({"chat_id": chat_id})
+    except Exception as e:
+        print(f"Error in remove_served_chat: {e}")
