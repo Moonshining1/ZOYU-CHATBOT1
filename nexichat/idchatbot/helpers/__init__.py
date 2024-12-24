@@ -1,10 +1,7 @@
 from typing import Callable
-
 from pyrogram.enums import ChatMemberStatus
 from pyrogram.types import Message
-
 from nexichat import OWNER, nexichat
-
 
 def is_admins(func: Callable) -> Callable:
     async def non_admin(c: nexichat, m: Message):
@@ -14,10 +11,12 @@ def is_admins(func: Callable) -> Callable:
         admin = await c.get_chat_member(m.chat.id, m.from_user.id)
         if admin.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR]:
             return await func(c, m)
+        else:
+            return  # Ensure that non-admins do not proceed.
 
     return non_admin
 
-
+# Import all necessary modules
 from .inline import *
 from .read import *
 from .language import *
