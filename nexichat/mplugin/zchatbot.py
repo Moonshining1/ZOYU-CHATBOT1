@@ -27,13 +27,19 @@ message_counts = {}
 
 async def load_abuse_cache():
     global abuse_cache
-    abuse_cache = [entry['word'] for entry in await abuse_words_db.find().to_list(length=None)]
+    try:
+        abuse_cache = [entry['word'] for entry in await abuse_words_db.find().to_list(length=None)]
+    except Exception as e:
+        LOGGER.error(f"Failed to load abuse cache: {e}")
 
 async def add_abuse_word(word: str):
     global abuse_cache
-    if word not in abuse_cache:
-        await abuse_words_db.insert_one({"word": word})
-        abuse_cache.append(word)
+    try:
+        if word not in abuse_cache:
+            await abuse_words_db.insert_one({"word": word})
+            abuse_cache.append(word)
+    except Exception as e:
+        LOGGER.error(f"Failed to add abuse word: {e}")
 
 async def is_abuse_present(text: str):
     global abuse_cache
@@ -52,6 +58,7 @@ async def block_word(client: Client, message: Message):
         await add_abuse_word(new_word)
         await message.reply_text(f"**Word '{new_word}' added to abuse list!**")
     except Exception as e:
+        LOGGER.error(f"Error in block_word: {e}")
         await message.reply_text(f"Error: {e}")
 
 @Client.on_message(filters.command("unblock") & filters.user(OWNER_ID))
@@ -69,6 +76,7 @@ async def unblock_word(client: Client, message: Message):
         else:
             await message.reply_text(f"**Word '{word_to_remove}' is not in the abuse list.**")
     except Exception as e:
+        LOGGER.error(f"Error in unblock_word: {e}")
         await message.reply_text(f"Error: {e}")
 
 @Client.on_message(filters.command("blocked") & filters.user(OWNER_ID))
@@ -83,6 +91,7 @@ async def list_blocked_words(client: Client, message: Message):
         else:
             await message.reply_text("**No blocked words found.**")
     except Exception as e:
+        LOGGER.error(f"Error in list_blocked_words: {e}")
         await message.reply_text(f"Error: {e}")
 
 async def save_reply(original_message: Message, reply_message: Message):
@@ -127,12 +136,15 @@ async def save_reply(original_message: Message, reply_message: Message):
             replies_cache.append(reply_data)
 
     except Exception as e:
-        print(f"Error in save_reply: {e}")
+        LOGGER.error(f"Error in save_reply: {e}")
 
 async def load_replies_cache():
     global replies_cache
-    replies_cache = await chatai.find().to_list(length=None)
-    await load_abuse_cache()
+    try:
+        replies_cache = await chatai.find().to_list(length=None)
+        await load_abuse_cache()
+    except Exception as e:
+        LOGGER.error(f"Failed to load replies cache: {e}")
 
 async def get_reply(word: str):
     global replies_cache
@@ -145,8 +157,12 @@ async def get_reply(word: str):
     return random.choice(relevant_replies) if relevant_replies else None
 
 async def get_chat_language(chat_id, bot_id):
-    chat_lang = await lang_db.find_one({"chat_id": chat_id, "bot_id": bot_id})
-    return chat_lang["language"] if chat_lang and "language" in chat_lang else None
+    try:
+        chat_lang = await lang_db.find_one({"chat_id": chat_id, "bot_id": bot_id})
+        return chat_lang["language"] if chat_lang and "language" in chat_lang else None
+    except Exception as e:
+        LOGGER.error(f"Failed to get chat language: {e}")
+        return None
     
 @Client.on_message(filters.incoming)
 async def chatbot_response(client: Client, message: Message):
@@ -182,43 +198,43 @@ async def chatbot_response(client: Client, message: Message):
                 if reply_data["check"] == "sticker":
                     try:
                         await message.reply_sticker(reply_data["text"])
-                    except:
-                        pass
+                    except Exception as e:
+                        LOGGER.error(f"Failed to send sticker reply: {e}")
                 elif reply_data["check"] == "photo":
                     try:
                         await message.reply_photo(reply_data["text"])
-                    except:
-                        pass
+                    except Exception as e:
+                        LOGGER.error(f"Failed to send photo reply: {e}")
                 elif reply_data["check"] == "video":
                     try:
                         await message.reply_video(reply_data["text"])
-                    except:
-                        pass
+                    except Exception as e:
+                        LOGGER.error(f"Failed to send video reply: {e}")
                 elif reply_data["check"] == "audio":
                     try:
                         await message.reply_audio(reply_data["text"])
-                    except:
-                        pass
+                    except Exception as e:
+                        LOGGER.error(f"Failed to send audio reply: {e}")
                 elif reply_data["check"] == "gif":
                     try:
                         await message.reply_animation(reply_data["text"])
-                    except:
-                        pass
+                    except Exception as e:
+                        LOGGER.error(f"Failed to send gif reply: {e}")
                 elif reply_data["check"] == "voice":
                     try:
                         await message.reply_voice(reply_data["text"])
-                    except:
-                        pass
+                    except Exception as e:
+                        LOGGER.error(f"Failed to send voice reply: {e}")
                 else:
                     try:
                         await message.reply_text(translated_text)
-                    except:
-                        pass
+                    except Exception as e:
+                        LOGGER.error(f"Failed to send text reply: {e}")
             else:
                 try:
                     await message.reply_text("**I don't understand. What are you saying?**")
-                except:
-                    pass
+                except Exception as e:
+                    LOGGER.error(f"Failed to send default reply: {e}")
 
         if message.reply_to_message:
             await save_reply(message.reply_to_message, message)
@@ -226,7 +242,7 @@ async def chatbot_response(client: Client, message: Message):
     except MessageEmpty:
         try:
             await message.reply_text("🙄🙄")
-        except:
-            pass
+        except Exception as e:
+            LOGGER.error(f"Failed to send empty message reply: {e}")
     except Exception as e:
-        return
+        LOGGER.error(f"Error in chatbot_response: {e}")
