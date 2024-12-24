@@ -24,10 +24,13 @@ abuse_cache = []
 blocklist = {}
 message_counts = {}
 
+async def load_cache(cache, db_collection, key):
+    cache.clear()
+    cache.extend([entry[key] for entry in await db_collection.find().to_list(length=None)])
 
 async def load_abuse_cache():
     global abuse_cache
-    abuse_cache = [entry['word'] for entry in await abuse_words_db.find().to_list(length=None)]
+    await load_cache(abuse_cache, abuse_words_db, 'word')
 
 async def add_abuse_word(word: str):
     global abuse_cache
@@ -127,11 +130,11 @@ async def save_reply(original_message: Message, reply_message: Message):
             replies_cache.append(reply_data)
 
     except Exception as e:
-        print(f"Error in save_reply: {e}")
+        LOGGER.error(f"Error in save_reply: {e}")
 
 async def load_replies_cache():
     global replies_cache
-    replies_cache = await chatai.find().to_list(length=None)
+    await load_cache(replies_cache, chatai, 'word')
     await load_abuse_cache()
 
 async def get_reply(word: str):
@@ -227,4 +230,4 @@ async def chatbot_response(client: Client, message: Message):
         except:
             pass
     except Exception as e:
-        return
+        LOGGER.error(f"Error in chatbot_response: {e}")
