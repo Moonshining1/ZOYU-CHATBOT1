@@ -31,7 +31,7 @@ def run_speedtest():
 async def speedtest_function(client, message: Message):
     m = await message.reply_text("ʀᴜɴɴɪɴɢ ꜱᴩᴇᴇᴅ...")
     try:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         result = await loop.run_in_executor(None, run_speedtest)
 
         output = server_result_template.format(
@@ -51,5 +51,7 @@ async def speedtest_function(client, message: Message):
             await message.reply_text(output)
 
         await m.delete()
+    except speedtest.SpeedtestException as e:
+        await m.edit_text(f"Speedtest Error: {e}")
     except Exception as e:
-        await m.edit_text(f"Error: {e}")
+        await m.edit_text(f"Unexpected Error: {e}")
