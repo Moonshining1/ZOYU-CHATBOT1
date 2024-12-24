@@ -17,7 +17,7 @@ START = """**
     
 ╔════════════╗
 ║ ➛ 𝚖𝚢 𝚛𝚎𝚙𝚘 ➪ [click here](https://github.com/amritraj78/KING-CHATBOT)  
-║ ➛ 𝚌𝚛𝚎𝚊𝚝𝚘𝚛 ➪ [⚜𝔸𝕞𝕣𝕚𝕥⚜](https://t.me/ll_KINGDOM_ll)
+║ ➛ 𝚌𝚛𝚎𝚊𝚝𝚘𝚛 ➪ [Amrit](https://t.me/ll_KINGDOM_ll)
 ╚════════════╝
 **"""
 
@@ -70,7 +70,7 @@ CHATBOT_READ = f"""**
 ────────────
 ➛ /idclone [ pyrogram string session ] - to make id-chatbot.
 ────────────
-📢 made by ➛ [⚜𝔸𝕞𝕣𝕚𝕥⚜](https://t.me/ll_KINGDOM_ll) 💞**
+📢 made by ➛ [Amrit](https://t.me/ll_KINGDOM_ll) 💞**
 """
 
 SOURCE_READ = f"""**Hey, the source code of [{nexichat.name}](https://t.me/{nexichat.username}) is given below.**
