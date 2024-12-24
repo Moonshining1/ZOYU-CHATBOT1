@@ -1,42 +1,43 @@
 from pyrogram.types import InlineKeyboardButton
-
 from config import SUPPORT_GRP, UPDATE_CHNL
 from nexichat import OWNER, nexichat
 
+# Constants for URLs
+START_GROUP_URL = f"https://t.me/{nexichat.username}?startgroup=true"
+SUPPORT_URL = f"https://t.me/{SUPPORT_GRP}"
+UPDATE_URL = f"https://t.me/{UPDATE_CHNL}"
 
 START_BOT = [
     [
         InlineKeyboardButton(
             text="😍 ᴀᴅᴅ ᴍᴇ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ 😍",
-            url=f"https://t.me/{nexichat.username}?startgroup=true",
+            url=START_GROUP_URL,
         ),
     ],
     [
         InlineKeyboardButton(text="🥀 ᴏᴡɴᴇʀ 🥀", user_id=OWNER),
-        InlineKeyboardButton(text="✨ ꜱᴜᴘᴘᴏʀᴛ ✨", url=f"https://t.me/{SUPPORT_GRP}"),
+        InlineKeyboardButton(text="✨ ꜱᴜᴘᴘᴏʀᴛ ✨", url=SUPPORT_URL),
     ],
     [
         InlineKeyboardButton(text="« ғᴇᴀᴛᴜʀᴇs »", callback_data="HELP"),
     ],
 ]
 
-
 DEV_OP = [
     [
         InlineKeyboardButton(text="🥀 ᴏᴡɴᴇʀ 🥀", user_id=OWNER),
-        InlineKeyboardButton(text="✨ ꜱᴜᴘᴘᴏʀᴛ ✨", url=f"https://t.me/{SUPPORT_GRP}"),
+        InlineKeyboardButton(text="✨ ꜱᴜᴘᴘᴏʀᴛ ✨", url=SUPPORT_URL),
     ],
     [
         InlineKeyboardButton(
             text="✦ ᴀᴅᴅ ᴍᴇ ʙᴀʙʏ ✦",
-            url=f"https://t.me/{nexichat.username}?startgroup=true",
+            url=START_GROUP_URL,
         ),
     ],
     [
         InlineKeyboardButton(text="« ʜᴇʟᴘ »", callback_data="HELP"),
     ],
     [
-        # InlineKeyboardButton(text="❄️ sᴏᴜʀᴄᴇ ❄️", callback_data="SOURCE"),
         InlineKeyboardButton(text="☁️ ᴀʙᴏᴜᴛ ☁️", callback_data="ABOUT"),
     ],
 ]
@@ -45,7 +46,7 @@ PNG_BTN = [
     [
         InlineKeyboardButton(
             text="😍 ᴀᴅᴅ ᴍᴇ ʙᴀʙʏ 😍",
-            url=f"https://t.me/{nexichat.username}?startgroup=true",
+            url=START_GROUP_URL,
         ),
     ],
     [
@@ -56,13 +57,11 @@ PNG_BTN = [
     ],
 ]
 
-
 BACK = [
     [
         InlineKeyboardButton(text="⦿ ʙᴀᴄᴋ ⦿", callback_data="BACK"),
     ],
 ]
-
 
 HELP_BTN = [
     [
@@ -74,13 +73,11 @@ HELP_BTN = [
     ],
 ]
 
-
 CLOSE_BTN = [
     [
         InlineKeyboardButton(text="⦿ ᴄʟᴏsᴇ ⦿", callback_data="CLOSE"),
     ],
 ]
-
 
 CHATBOT_ON = [
     [
@@ -89,10 +86,9 @@ CHATBOT_ON = [
     ],
 ]
 
-
 MUSIC_BACK_BTN = [
     [
-        InlineKeyboardButton(text="sᴏᴏɴ", callback_data=f"soom"),
+        InlineKeyboardButton(text="sᴏᴏɴ", callback_data="soom"),
     ],
 ]
 
@@ -103,7 +99,6 @@ S_BACK = [
     ],
 ]
 
-
 CHATBOT_BACK = [
     [
         InlineKeyboardButton(text="⦿ ʙᴀᴄᴋ ⦿", callback_data="CHATBOT_BACK"),
@@ -111,14 +106,12 @@ CHATBOT_BACK = [
     ],
 ]
 
-
 HELP_START = [
     [
         InlineKeyboardButton(text="« ʜᴇʟᴘ »", callback_data="HELP"),
         InlineKeyboardButton(text="🐳 ᴄʟᴏsᴇ 🐳", callback_data="CLOSE"),
     ],
 ]
-
 
 HELP_BUTN = [
     [
@@ -129,18 +122,16 @@ HELP_BUTN = [
     ],
 ]
 
-
 ABOUT_BTN = [
     [
-        InlineKeyboardButton(text="🎄 sᴜᴘᴘᴏʀᴛ 🎄", url=f"https://t.me/{SUPPORT_GRP}"),
+        InlineKeyboardButton(text="🎄 sᴜᴘᴘᴏʀᴛ 🎄", url=SUPPORT_URL),
         InlineKeyboardButton(text="« ʜᴇʟᴘ »", callback_data="HELP"),
     ],
     [
         InlineKeyboardButton(text="🍾 ᴏᴡɴᴇʀ 🍾", user_id=OWNER),
-        #   InlineKeyboardButton(text="❄️ sᴏᴜʀᴄᴇ ❄️", callback_data="SOURCE"),
     ],
     [
-        InlineKeyboardButton(text="🐳 ᴜᴘᴅᴀᴛᴇs 🐳", url=f"https://t.me/{UPDATE_CHNL}"),
+        InlineKeyboardButton(text="🐳 ᴜᴘᴅᴀᴛᴇs 🐳", url=UPDATE_URL),
         InlineKeyboardButton(text="⦿ ʙᴀᴄᴋ ⦿", callback_data="BACK"),
     ],
 ]
