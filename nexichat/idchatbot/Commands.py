@@ -1,31 +1,24 @@
 import random
 import os
 import sys
-from MukeshAPI import api
 from pymongo import MongoClient
 from pyrogram import Client, filters
-from pyrogram.errors import MessageEmpty
-from pyrogram.enums import ChatAction, ChatMemberStatus as CMS
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery
+from pyrogram.types import Message
 from deep_translator import GoogleTranslator
 from nexichat.database.chats import add_served_chat
 from nexichat.database.users import add_served_user
-from config import MONGO_URL
-from nexichat import nexichat, mongo, LOGGER, db
+from nexichat import nexichat, db
 from nexichat.idchatbot.helpers import languages
-import asyncio
 
 translator = GoogleTranslator()
 
 lang_db = db.ChatLangDb.LangCollection
 status_db = db.chatbot_status_db.status
 
-
 async def get_chat_language(chat_id, bot_id):
     chat_lang = await lang_db.find_one({"chat_id": chat_id, "bot_id": bot_id})
     return chat_lang["language"] if chat_lang and "language" in chat_lang else None
-   
-    
+
 @Client.on_message(filters.command("status", prefixes=[".", "/"]))
 async def status_command(client: Client, message: Message):
     chat_id = message.chat.id
@@ -47,7 +40,6 @@ async def reset_language(client: Client, message: Message):
         upsert=True
     )
     await message.reply_text("**Bot language has been reset in this chat to mix language.**")
-
 
 @Client.on_message(filters.command("chatbot", prefixes=[".", "/"]))
 async def chatbot_command(client: Client, message: Message):
@@ -78,8 +70,6 @@ async def chatbot_command(client: Client, message: Message):
             "Please specify an option to enable or disable the chatbot.\n\n"
             "Example: `/chatbot on` or `/chatbot off`"
         )
-
-
 
 @Client.on_message(filters.command(["lang", "language", "setlang"], prefixes=[".", "/"]))
 async def set_language(client: Client, message: Message):
