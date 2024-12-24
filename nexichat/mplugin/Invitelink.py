@@ -1,12 +1,10 @@
 import os
-
 from pyrogram import Client, filters
 from pyrogram.errors import FloodWait
 from pyrogram.types import Message
 from nexichat.mplugin.helpers import is_owner
 from nexichat import nexichat
 from config import OWNER_ID
-
 
 @Client.on_message(filters.command("givelink"))
 async def give_link_command(client, message):
@@ -16,9 +14,11 @@ async def give_link_command(client, message):
     if not await is_owner(bot_id, user_id):
         await message.reply_text("You don't have permission to use this command on this bot.")
         return
-    link = await client.export_chat_invite_link(chat)
-    await message.reply_text(f"**Here's the invite link for this chat:**\n\n{link}")
-
+    try:
+        link = await client.export_chat_invite_link(chat)
+        await message.reply_text(f"**Here's the invite link for this chat:**\n\n{link}")
+    except Exception as e:
+        await message.reply_text(f"Error: {e}")
 
 @Client.on_message(filters.command(["link", "invitelink"], prefixes=["/", "!", "%", ",", ".", "@", "#"]))
 async def link_command_handler(client: Client, message: Message):
@@ -70,11 +70,11 @@ async def link_command_handler(client: Client, message: Message):
         await client.send_document(
             chat_id=message.chat.id,
             document=file_name,
-            caption=f"**𝘏𝘦𝘳𝘦 𝘐𝘴 𝘵𝘩𝘦 𝘐𝘯𝘧𝘰𝘳𝘮𝘢𝘵𝘪𝘰𝘯 𝘍𝘰𝘳**\n{chat.title}\n\n**𝘛𝘩𝘦 𝘎𝘳𝘰𝘶𝘱 𝘐𝘯𝘧𝘰𝘳𝘮𝘢𝘵𝘪𝘰𝘯 𝘚𝘤𝘳𝘢𝘱𝘦𝘥 𝘉𝘺 : @{client.username}**",
+            caption=f"**Here is the information for**\n{chat.title}\n\n**The group information is as follows:**"
         )
 
     except Exception as e:
-        await message.reply(f"**Error:** {str(e)}")
+        await message.reply(f"**Error:** {e}")
 
     finally:
         if os.path.exists(file_name):
