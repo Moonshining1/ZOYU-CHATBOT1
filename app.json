@@ -1,6 +1,6 @@
 {
-  "name": "𝐀ɴɢʟᴇ‹✨",
-  "description": "A telegram bot",
+  "name": "Villian Chatbot",
+  "description": "A Telegram bot",
   "logo": "https://files.catbox.moe/9iwpfv.jpg",
   "keywords": [
     "Chatbot",
@@ -8,30 +8,26 @@
     "python",
     "pyrogram"
   ],
-    "buildpacks": [{
+  "buildpacks": [{
     "url": "heroku/python"
   }],
-  "repository": "https://github.com/amritraj78/KING-CHATBOT",
+  "repository": "https://github.com/villian26/VILLIAN-CHATBOT",
   "env": {
     "BOT_TOKEN": {
       "description": "A Bot token from @BotFather",
-      "required": true,
-      "value": ""
+      "required": true
     },
     "STRING_SESSION": {
-      "description": "Fill Here A Pyrogram String Session For Id-Chatbot, Get it from: https://telegram.tools/session-string-generator#pyrogram,user (This is Optional, If you dont want id-chatbot you can skip this variable)",
-      "required": false,
-      "value": ""
+      "description": "Fill Here A Pyrogram String Session For Id-Chatbot, Get it from: https://telegram.tools/session-string-generator#pyrogram,user (This is Optional, If you dont want id-chatbot functionality)",
+      "required": false
     },
     "OWNER_ID": {
       "description": "Fill Here Your Owner User Id",
-      "required": true,
-      "value": "7745014754"
+      "required": true
     },
     "MONGO_URL": {
       "description": "Get a mongodb url from https://cloud.mongodb.com.",
-      "required": true,
-      "value": ""
+      "required": true
     }
   }
 }
