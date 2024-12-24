@@ -4,7 +4,6 @@ from pyrogram import filters, Client
 from pyrogram.enums import ChatAction
 from nexichat import nexichat as app
 
-
 @Client.on_message(filters.command(["gemini", "ai", "ask", "chatgpt"]))
 async def gemini_handler(client, message):
     if (
@@ -18,7 +17,7 @@ async def gemini_handler(client, message):
         if len(message.command) > 1:
             user_input = " ".join(message.command[1:])
         else:
-            await message.reply_text("ᴇxᴀᴍᴘʟᴇ :- `/ask who is Narendra Modi`")
+            await message.reply_text("Example: `/ask who is Narendra Modi`")
             return
 
     try:
@@ -28,8 +27,8 @@ async def gemini_handler(client, message):
         if result:
             await message.reply_text(result, quote=True)
             return
-    except:
-        pass  
+    except Exception as e:
+        logging.exception("Error in Gemini API call: %s", e)
         
     try:
         base_url = "https://chatwithai.codesearch.workers.dev/?chat="
@@ -37,6 +36,7 @@ async def gemini_handler(client, message):
         if response and response.text.strip():
             await message.reply_text(response.text.strip(), quote=True)
         else:
-            await message.reply_text("**Both Gemini and Chat with AI are currently unavailable**")
-    except:
-        await message.reply_text("**Chatgpt is currently dead. Try again later.**")
+            await message.reply_text("Both Gemini and Chat with AI are currently unavailable.")
+    except Exception as e:
+        logging.exception("Error in Chat with AI API call: %s", e)
+        await message.reply_text("ChatGPT is currently unavailable. Try again later.")
