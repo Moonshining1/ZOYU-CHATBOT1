@@ -35,7 +35,6 @@ translator = GoogleTranslator()
 lang_db = db.ChatLangDb.LangCollection
 status_db = db.chatbot_status_db.status
 
-
 def generate_language_buttons(languages):
     buttons = []
     current_row = []
