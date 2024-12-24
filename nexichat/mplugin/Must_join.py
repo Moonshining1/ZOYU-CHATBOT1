@@ -7,27 +7,27 @@ from config import UPDATE_CHNL as MUST_JOIN
 
 @Client.on_message(filters.incoming, group=-2)
 async def must_join_channel(client: Client, msg: Message):
-    m = msg.from_user.id
+    user_id = msg.from_user.id
     if not MUST_JOIN:
         return
     try:
+        await nexichat.get_chat_member(MUST_JOIN, user_id)
+    except UserNotParticipant:
+        if MUST_JOIN.isalpha():
+            link = f"https://t.me/{MUST_JOIN}"
+        else:
+            chat_info = await nexichat.get_chat(MUST_JOIN)
+            link = chat_info.invite_link
         try:
-            m = msg.from_user.id
-            await nexichat.get_chat_member(MUST_JOIN, m)
-        except UserNotParticipant:
-            if MUST_JOIN.isalpha():
-                link = "https://t.me/" + MUST_JOIN
-            else:
-                chat_info = await nexichat.get_chat(MUST_JOIN)
-                link = chat_info.invite_link
-            try:
-                await msg.reply_photo(
-                    photo="https://envs.sh/Tn_.jpg",
-                    caption=(f"**👋 ʜᴇʟʟᴏ {msg.from_user.mention},**\n\n**ʏᴏᴜ ɴᴇᴇᴅ ᴛᴏ ᴊᴏɪɴ ᴛʜᴇ [ᴄʜᴀɴɴᴇʟ]({link}) ᴛᴏ sᴇɴᴅ ᴍᴇssᴀɢᴇs ʜᴇʀᴇ**"),
-                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("๏ ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ ๏", url=link)]]))
-        
-                await msg.stop_propagation()
-            except ChatWriteForbidden:
-                pass
+            await msg.reply_photo(
+                photo="https://envs.sh/Tn_.jpg",
+                caption=(f"**👋 ʜᴇʟʟᴏ {msg.from_user.mention},**\n\n"
+                         f"**ʏᴏᴜ ɴᴇᴇᴅ ᴛᴏ ᴊᴏɪɴ ᴛʜᴇ [ᴄʜᴀɴɴᴇʟ]({link}) ᴛᴏ sᴇɴᴅ ᴍᴇssᴀɢᴇs ʜᴇʀᴇ.**"),
+                reply_markup=InlineKeyboardMarkup(
+                    [[InlineKeyboardButton("๏ ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ ๏", url=link)]])
+            )
+            await msg.stop_propagation()
+        except ChatWriteForbidden:
+            pass
     except ChatAdminRequired:
         print(f"๏ᴘʀᴏᴍᴏᴛᴇ ᴍᴇ ᴀs ᴀɴ ᴀᴅᴍɪɴ ɪɴ ᴛʜᴇ ᴍᴜsᴛ_Jᴏɪɴ ᴄʜᴀᴛ ๏: {MUST_JOIN} !")
