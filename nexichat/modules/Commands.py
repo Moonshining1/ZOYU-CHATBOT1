@@ -1,50 +1,23 @@
-import random
 import os
-import shutil
-from MukeshAPI import api
-from pymongo import MongoClient
-from pyrogram import Client, filters
-from pyrogram.errors import MessageEmpty
-from pyrogram.enums import ChatAction, ChatMemberStatus as CMS
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery
-from deep_translator import GoogleTranslator
-from nexichat.database.chats import add_served_chat
-from nexichat.database.users import add_served_user
-from config import MONGO_URL, OWNER_ID
-from nexichat import nexichat, mongo, LOGGER, db, SUDOERS
-from nexichat.modules.helpers import languages, CHATBOT_ON
-from nexichat.modules.helpers import (
-    ABOUT_BTN,
-    ABOUT_READ,
-    ADMIN_READ,
-    BACK,
-    CHATBOT_BACK,
-    CHATBOT_READ,
-    DEV_OP,
-    HELP_BTN,
-    HELP_READ,
-    MUSIC_BACK_BTN,
-    SOURCE_READ,
-    START,
-    TOOLS_DATA_READ,
-)
 import asyncio
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from deep_translator import GoogleTranslator
+from nexichat import nexichat, db, SUDOERS
+from nexichat.modules.helpers import languages, CHATBOT_ON
 
 translator = GoogleTranslator()
 
 lang_db = db.ChatLangDb.LangCollection
 status_db = db.chatbot_status_db.status
 
-
-@nexichat.on_message(
-    filters.command(["restart"]) & SUDOERS
-)
+@nexichat.on_message(filters.command(["restart"]) & SUDOERS)
 async def restart(client: Client, message: Message):
-    reply = await message.reply_text("**🔁 Rᴇsᴛᴀʀᴛɪɴɢ 🔥 ...**")
+    reply = await message.reply_text("**🔁 Restarting...**")
     await message.delete()
-    await reply.edit_text("🥀 SᴜᴄᴄᴇssFᴜʟʟʏ RᴇSᴛᴀʀᴛᴇᴅ\n ︎ᴄʜᴀᴛʙᴏᴛ  🔥 ...\n\n💕 Pʟᴇᴀsᴇ Wᴀɪᴛ 5 ꜱᴇᴄ Fᴏʀ\nLᴏᴀᴅ Usᴇʀ Pʟᴜɢɪɴs ✨ ...</b>")
+    await reply.edit_text("**Successfully Restarted\nChatbot...**")
     os.system(f"kill -9 {os.getpid()} && bash start")
-    
+
 def generate_language_buttons(languages):
     buttons = []
     current_row = []
@@ -68,7 +41,6 @@ async def set_language(client: Client, message: Message):
         reply_markup=generate_language_buttons(languages)
     )
 
-
 @nexichat.on_message(filters.command("status"))
 async def status_command(client: Client, message: Message):
     chat_id = message.chat.id
@@ -79,21 +51,11 @@ async def status_command(client: Client, message: Message):
     else:
         await message.reply("No status found for this chat.")
 
-
-@nexichat.on_message(filters.command(["lang", "language", "setlang"]))
-async def set_language(client: Client, message: Message):
-    await message.reply_text(
-        "Please select your chat language:",
-        reply_markup=generate_language_buttons(languages)
-    )
-
-
 @nexichat.on_message(filters.command(["resetlang", "nolang"]))
 async def reset_language(client: Client, message: Message):
     chat_id = message.chat.id
     lang_db.update_one({"chat_id": chat_id}, {"$set": {"language": "nolang"}}, upsert=True)
     await message.reply_text("**Bot language has been reset in this chat to mix language.**")
-
 
 @nexichat.on_message(filters.command("chatbot"))
 async def chatbot_command(client: Client, message: Message):
