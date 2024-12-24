@@ -1,21 +1,25 @@
-from pyrogram import Client, filters
+ffrom pyrogram import Client, filters
 import requests
 from pyrogram.types import Message
 from nexichat import nexichat as app, mongo, db
-from MukeshAPI import api
 import asyncio
 from nexichat.modules.helpers import CHATBOT_ON, languages
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery
 
+# Database collections
 lang_db = db.ChatLangDb.LangCollection
 message_cache = {}
 
+
 async def get_chat_language(chat_id):
+    """Retrieve the language setting for a chat."""
     chat_lang = await lang_db.find_one({"chat_id": chat_id})
     return chat_lang["language"] if chat_lang and "language" in chat_lang else None
 
+
 @app.on_message(filters.command("chatlang"))
 async def fetch_chat_lang(client, message):
+    """Fetch and display the current language setting for a chat."""
     chat_id = message.chat.id
     chat_lang = await get_chat_language(chat_id)
     await message.reply_text(f"The language code using for this chat is: {chat_lang}")
@@ -23,6 +27,7 @@ async def fetch_chat_lang(client, message):
 
 @app.on_message(filters.text, group=2)
 async def store_messages(client, message: Message):
+    """Store and analyze messages to detect chat language."""
     global message_cache
 
     chat_id = message.chat.id
@@ -42,24 +47,23 @@ async def store_messages(client, message: Message):
                 [f"Text: {msg.text}..." for msg in message_cache[chat_id]]
             )
             user_input = f"""
-            sentences list :-
+            sentences list:-
             [
             {history}
             ]
 
-            Above is a list of sentences. Each sentence could be in different languages. Analyze the language of each sentence separately and identify the dominant language used for each sentence. and then Consider the language that appears the most, ignoring any commands like sentence start with /. 
-            Provide only the official language name with language code (like 'en' for English, 'hi' for Hindi). in this format :-
-            Lang Name :- ""
-            Lang code :- ""
-            ok so provideo me only overall [ Lang Name and Lang Code ] in above format Do not provide anything else.
+            Above is a list of sentences. Each sentence could be in different languages. Analyze the language of each sentence separately and identify the dominant language used for each sentence.
+            Provide only the official language name with language code (like 'en' for English, 'hi' for Hindi). in this format:-
+            Lang Name:-
+            Lang code:-
+            ok so provide me only overall [Lang Name and Lang Code] in above format. Do not provide anything else.
             """
-            
+
             base_url = "https://chatwithai.codesearch.workers.dev/?chat="
-            response = requests.get(base_url + user_input)
-            reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("sᴇʟᴇᴄᴛ ʟᴀɴɢᴜᴀɢᴇ", callback_data="choose_lang")]])    
-            await message.reply_text(f"**Chat language detected for this chat:**\n\n{response.text}\n\n**You can set my lang by /lang**", reply_markup=reply_markup)
-            message_cache[chat_id].clear()
-
-
-
-
+            try:
+                response = requests.get(base_url + user_input)
+                reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("Select Language", callback_data="choose_lang")]])
+                await message.reply_text(f"**Chat language detected for this chat:**\n\n{response.text}\n\n**You can set my lang by /lang**", reply_markup=reply_markup)
+                message_cache[chat_id].clear()
+            except Exception as e:
+                await message.reply_text(f"**Failed to detect chat language. Error:** {e}")
