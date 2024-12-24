@@ -1,4 +1,4 @@
-importimport random
+import random
 from motor.motor_asyncio import AsyncIOMotorClient as MongoCli
 import os
 
