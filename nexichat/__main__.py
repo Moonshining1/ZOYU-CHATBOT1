@@ -17,64 +17,64 @@ async def anony_boot():
     try:
         await nexichat.start()
         try:
-            await nexichat.send_message(int(OWNER_ID), f"**{nexichat.mention} Is started✅**")
+            await nexichat.send_message(int(OWNER_ID), f"**{nexichat.mention} is started ✅**")
         except Exception as ex:
-            LOGGER.info(f"@{nexichat.username} Started, please start the bot from owner id.")
+            LOGGER.warning(f"Failed to send start message to owner: {ex}")
     
-        asyncio.create_task(restart_bots())
-        asyncio.create_task(restart_idchatbots())
-        await load_clone_owners()
+        await asyncio.gather(
+            restart_bots(),
+            restart_idchatbots(),
+            load_clone_owners()
+        )
+        
         if config.STRING1:
             try:
                 await userbot.start()
                 try:
-                    await nexichat.send_message(int(OWNER_ID), f"**Id-Chatbot Also Started✅**")
+                    await nexichat.send_message(int(OWNER_ID), f"**Id-Chatbot also started ✅**")
                 except Exception as ex:
-                    LOGGER.info(f"@{nexichat.username} Started, please start the bot from owner id.")
-    
+                    LOGGER.warning(f"Failed to send start message to owner: {ex}")
             except Exception as ex:
-                print(f"Error in starting id-chatbot :- {ex}")
-                pass
+                LOGGER.error(f"Error in starting id-chatbot: {ex}")
     except Exception as ex:
-        LOGGER.error(ex)
+        LOGGER.error(f"Failed to start nexichat: {ex}")
 
     for all_module in ALL_MODULES:
-        importlib.import_module("nexichat.modules." + all_module)
-        LOGGER.info(f"Successfully imported : {all_module}")
+        try:
+            importlib.import_module("nexichat.modules." + all_module)
+            LOGGER.info(f"Successfully imported: {all_module}")
+        except ImportError as ex:
+            LOGGER.error(f"Failed to import module {all_module}: {ex}")
 
-    
     try:
-        await nexichat.set_bot_commands(
-            commands=[
-                BotCommand("start", "Start the bot"),
-                BotCommand("help", "Get the help menu"),
-                BotCommand("clone", "Make your own chatbot"),
-                BotCommand("idclone", "Make your id-chatbot"),
-                BotCommand("cloned", "Get List of all cloned bot"),
-                BotCommand("ping", "Check if the bot is alive or dead"),
-                BotCommand("lang", "Select bot reply language"),
-                BotCommand("chatlang", "Get current using lang for chat"),
-                BotCommand("resetlang", "Reset to default bot reply lang"),
-                BotCommand("id", "Get users user_id"),
-                BotCommand("stats", "Check bot stats"),
-                BotCommand("gcast", "Broadcast any message to groups/users"),
-                BotCommand("chatbot", "Enable or disable chatbot"),
-                BotCommand("status", "Check chatbot enable or disable in chat"),
-                BotCommand("shayri", "Get random shayri for love"),
-                BotCommand("ask", "Ask anything from chatgpt"),
-                BotCommand("repo", "Get chatbot source code"),
-            ]
-        )
+        await nexichat.set_bot_commands([
+            BotCommand("start", "Start the bot"),
+            BotCommand("help", "Get the help menu"),
+            BotCommand("clone", "Make your own chatbot"),
+            BotCommand("idclone", "Make your id-chatbot"),
+            BotCommand("cloned", "Get list of all cloned bots"),
+            BotCommand("ping", "Check if the bot is alive or dead"),
+            BotCommand("lang", "Select bot reply language"),
+            BotCommand("chatlang", "Get current using language for chat"),
+            BotCommand("resetlang", "Reset to default bot reply language"),
+            BotCommand("id", "Get user's user_id"),
+            BotCommand("stats", "Check bot stats"),
+            BotCommand("gcast", "Broadcast any message to groups/users"),
+            BotCommand("chatbot", "Enable or disable chatbot"),
+            BotCommand("status", "Check chatbot enable or disable in chat"),
+            BotCommand("shayri", "Get random shayri for love"),
+            BotCommand("ask", "Ask anything from chatgpt"),
+            BotCommand("repo", "Get chatbot source code"),
+        ])
         LOGGER.info("Bot commands set successfully.")
     except Exception as ex:
         LOGGER.error(f"Failed to set bot commands: {ex}")
-    
-    LOGGER.info(f"@{nexichat.username} Started.")
-    
+
+    LOGGER.info(f"@{nexichat.username} started.")
     await idle()
 
-
 app = Flask(__name__)
+
 @app.route('/')
 def home():
     return "Bot is running"
