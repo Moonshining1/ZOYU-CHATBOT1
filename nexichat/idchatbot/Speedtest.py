@@ -2,38 +2,45 @@ import asyncio
 import speedtest
 from pyrogram import filters, Client
 from pyrogram.types import Message
-from nexichat import nexichat
 
 server_result_template = (
-    "✯ sᴩᴇᴇᴅᴛᴇsᴛ ʀᴇsᴜʟᴛs ✯\n\n"
-    "ᴄʟɪᴇɴᴛ:\n"
-    "» ɪsᴩ: {isp}\n"
-    "» ᴄᴏᴜɴᴛʀʏ: {country}\n\n"
-    "sᴇʀᴠᴇʀ:\n"
-    "» ɴᴀᴍᴇ: {server_name}\n"
-    "» ᴄᴏᴜɴᴛʀʏ: {server_country}, {server_cc}\n"
-    "» sᴩᴏɴsᴏʀ: {sponsor}\n"
-    "» ʟᴀᴛᴇɴᴄʏ: {latency} ms\n"
-    "» ᴩɪɴɢ: {ping} ms"
+    "✯ Speedtest Results ✯\n\n"
+    "Client:\n"
+    "» ISP: {isp}\n"
+    "» Country: {country}\n\n"
+    "Server:\n"
+    "» Name: {server_name}\n"
+    "» Country: {server_country}, {server_cc}\n"
+    "» Sponsor: {sponsor}\n"
+    "» Latency: {latency} ms\n"
+    "» Ping: {ping} ms"
 )
 
 def run_speedtest():
-    test = speedtest.Speedtest()
-    test.get_best_server()
-    test.download()
-    test.upload()
-    results = test.results.dict()
-    share_link = test.results.share() if test.results.share() else None
-    results["share"] = share_link
-    return results
+    try:
+        test = speedtest.Speedtest()
+        test.get_best_server()
+        test.download()
+        test.upload()
+        results = test.results.dict()
+        results["share"] = test.results.share() if test.results.share() else None
+        return results
+    except speedtest.SpeedtestException as e:
+        return {"error": f"Speedtest Error: {e}"}
+    except Exception as e:
+        return {"error": f"Unexpected Error: {e}"}
 
 @Client.on_message(filters.command(["speedtest", "spt"], prefixes=["."]))
 async def speedtest_function(client, message: Message):
-    m = await message.reply_text("ʀᴜɴɴɪɴɢ ꜱᴩᴇᴇᴅ...")
+    m = await message.reply_text("Running speedtest...")
     try:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         result = await loop.run_in_executor(None, run_speedtest)
-
+        
+        if "error" in result:
+            await m.edit_text(result["error"])
+            return
+        
         output = server_result_template.format(
             isp=result["client"]["isp"],
             country=result["client"]["country"],
@@ -52,4 +59,4 @@ async def speedtest_function(client, message: Message):
 
         await m.delete()
     except Exception as e:
-        await m.edit_text(f"Error: {e}")
+        await m.edit_text(f"Unexpected Error: {e}")
