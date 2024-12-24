@@ -9,6 +9,7 @@ from pyrogram.enums import ParseMode
 import config
 import uvloop
 import time
+
 ID_CHATBOT = None
 SUDOERS = filters.user()
 CLONE_OWNERS = {}
@@ -31,12 +32,13 @@ mongodb = mongo.VIP
 OWNER = config.OWNER_ID
 _boot_ = time.time()
 clonedb = None
+
 def dbb():
     global db
     global clonedb
     clonedb = {}
     db = {}
-    
+
 def sudo():
     global SUDOERS
     OWNER = config.OWNER_ID
@@ -57,7 +59,7 @@ def sudo():
         if sudoers:
             for x in sudoers:
                 SUDOERS.add(x)
-    print(f"Sudoers Loaded.")
+    LOGGER.info("Sudoers Loaded.")
 
 cloneownerdb = db.clone_owners
 
@@ -73,6 +75,7 @@ async def save_clonebot_owner(bot_id, user_id):
         {"$set": {"user_id": user_id}},
         upsert=True
     )
+
 async def get_clone_owner(bot_id):
     data = await cloneownerdb.find_one({"bot_id": bot_id})
     if data:
@@ -96,7 +99,6 @@ async def get_idclone_owner(clone_id):
         return data["user_id"]
     return None
 
-    
 class nexichat(Client):
     def __init__(self):
         super().__init__(
@@ -140,7 +142,7 @@ def get_readable_time(seconds: int) -> str:
     time_list.reverse()
     ping_time += ":".join(time_list)
     return ping_time
-    
+
 sudo()
 nexichat = nexichat()
 userbot = Userbot()
