@@ -2,92 +2,90 @@ from config import OWNER_USERNAME, SUPPORT_GRP
 from nexichat import nexichat
 from pyrogram import Client, filters
 
-
-
 START = """**
-🤖 ᴛʜɪꜱ ɪꜱ ᴛʜᴇ ꜱᴜᴘᴇʀғᴀꜱᴛ ᴄʜᴀᴛʙᴏᴛ 🚀
+🤖 This is the superfast chatbot 🚀
 
-📁 ꜱᴜᴘᴘᴏʀᴛꜱ ᴛᴇxᴛ, ꜱᴛɪᴄᴋᴇʀ, ᴘʜᴏᴛᴏ, ᴠɪᴅᴇᴏ...
-🌍 ᴍᴜʟᴛɪ-ʟᴀɴɢᴜᴀɢᴇ ғᴏʀ ᴇᴀᴄʜ ᴄʜᴀᴛ /lang
-⚙️ ᴄʜᴀᴛʙᴏᴛ ᴇɴᴀʙʟᴇᴅ/ᴅɪꜱᴀʙʟᴇᴅ ʙʏ /chatbot
-🔄 ʏᴏᴜ ᴄᴀɴ ᴄʟᴏɴᴇ/ᴍᴀᴋᴇ ᴄʜᴀᴛʙᴏᴛ ʙʏ /clone
-🔄 ᴍᴀᴋᴇ ʏᴏᴜʀ ɪᴅ-ᴄʜᴀᴛʙᴏᴛ ʙʏ /idclone
+📁 Supports text, sticker, photo, video...
+🌍 Multi-language for each chat /lang
+⚙️ Chatbot enabled/disabled by /chatbot
+🔄 You can clone/make chatbot by /clone
+🔄 Make your ID-chatbot by /idclone
 
-👥 ᴛᴏᴛᴀʟ ᴜꜱᴇʀꜱ : {}
-💬 ᴛᴏᴛᴀʟ ᴄʜᴀᴛꜱ : {}
-⏱️ ᴜᴘᴛɪᴍᴇ » {}
+👥 Total users : {}
+💬 Total chats : {}
+⏱️ Uptime » {}
 
 ╔═════════════════╗
-║ ➻ ᴍʏ ʀᴇᴘᴏ ➪ [ᴄʟɪᴄᴋ ʜᴇʀᴇ](https://github.com/amritraj78/KING-CHATBOT) 🎁                
+║ ➻ My repo ➪ [Click Here](https://github.com/amritraj78/KING-CHATBOT) 🎁                
 ╚═════════════════╝
 
-➲ ᴀᴅᴅ ᴍᴇ ɪɴ ɢʀᴏᴜᴩꜱ ᴛᴏ ᴜꜱᴇ ꜰᴇᴀᴛᴜʀᴇꜱ.
+➲ Add me in groups to use features.
 **"""
 
 HELP_READ = f"""**
-Cʟɪᴄᴋ ᴏɴ ᴛʜᴇ ʙᴜᴛᴛᴏɴs ʙᴇʟᴏᴡ ғᴏʀ ᴍᴏʀᴇ ɪɴғᴏʀᴍᴀᴛɪᴏɴ.  Iғ ʏᴏᴜ'ʀᴇ ғᴀᴄɪɴɢ ᴀɴʏ ᴘʀᴏʙʟᴇᴍ ʏᴏᴜ ᴄᴀɴ ᴀsᴋ ɪɴ [sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ](https://t.me/ll_KINGDOM_ll).
+Click on the buttons below for more information. If you're facing any problem you can ask in[...]
 
-Aʟʟ ᴄᴏᴍᴍᴀɴᴅs ᴄᴀɴ ʙᴇ ᴜsᴇᴅ ᴡɪᴛʜ: /**
+All commands can be used with: /**
 """
 
 TOOLS_DATA_READ = f"""**
-๏ ʜᴇʀᴇ ᴀʀᴇ ᴛʜᴇ ᴄᴏᴍᴍᴀɴᴅs ғᴏʀ ᴛᴏᴏʟꜱ:
+๏ Here are the commands for tools:
 
-➻ /start ᴛᴏ ᴡᴀᴋᴇ ᴜᴘ ᴛʜᴇ ʙᴏᴛ ᴀɴᴅ ʀᴇᴄᴇɪᴠᴇ ᴀ ᴡᴇʟᴄᴏᴍᴇ ᴍᴇssᴀɢᴇ!
+➻ /start to wake up the bot and receive a welcome message!
 ──────────────
-➻ /help ғᴏʀ ɢᴇᴛᴛɪɴɢ ᴅᴇᴛᴀɪʟs ᴀʙᴏᴜᴛ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅs ᴀɴᴅ ғᴇᴀᴛᴜʀᴇs.
+➻ /help for getting details about all commands and features.
 ──────────────
-➻ /ping ᴛᴏ ᴄʜᴇᴄᴋ ᴛʜᴇ ʀᴇsᴘᴏɴsᴇ ᴛɪᴍᴇ (ᴘɪɴɢ) ᴏғ ᴛʜᴇ ʙᴏᴛ!
+➻ /ping to check the response time (ping) of the bot!
 ──────────────
-➻ /speedtest ᴄʜᴇᴄᴋ ꜱᴇʀᴠᴇʀ ꜱᴩᴇᴇᴅ
+➻ /speedtest check server speed
 ──────────────
-➻ /id ᴛᴏ ɢᴇᴛ ʏᴏᴜʀ ᴜsᴇʀ ɪᴅ, ᴄʜᴀᴛ ɪᴅ, ᴀɴᴅ ᴍᴇssᴀɢᴇ ɪᴅ ᴀʟʟ ɪɴ ᴏɴᴇ ᴍᴇssᴀɢᴇ.
+➻ /id to get your user ID, chat ID, and message ID all in one message.
 ──────────────
-➻ /broadcast ᴛᴏ ғᴏʀᴡᴀʀᴅ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ᴀʟʟ ᴄʜᴀᴛs ʙᴀsᴇᴅ ᴏɴ sᴘᴇᴄɪғɪᴇᴅ ғʟᴀɢs!\nᴇxᴀᴍᴘʟᴇ: `/broadcast -user -pin ʜᴇʟʟᴏ ғʀɪᴇɴᴅs`
+➻ /broadcast to forward a message to all chats based on specified flags!\nExample: `/broadcast -user -pin hello[...]`
 ──────────────
-➻ /shayri ɢᴇᴛ ʀᴀɴᴅᴏᴍ sʜᴀʏʀɪ ғᴏʀ ʏᴏᴜʀ ʟᴏᴠᴇ
+➻ /shayri get random shayri for your love
 ──────────────
-➻ /link (ɢʀᴏᴜᴩ ɪᴅ) ᴛᴏ ɢᴇᴛ ʟɪɴᴋ ᴏꜰ ɢʀᴏᴜᴩ
-➻ /givelink ᴛᴏ ɢᴇᴛ ᴛʜᴀᴛ ɢʀᴏᴜᴩ ʟɪɴᴋ ɪɴ ᴡʜɪᴄʜ ᴄᴏᴍᴍᴀɴᴅ ɪꜱ ᴡʀɪᴛᴛᴇɴ (ᴡʀɪᴛᴇ ɪɴ ɢʀᴏᴜᴩ)
+➻ /link (group ID) to get the link of group
+➻ /givelink to get that group link in which command is written (write in group)
 ──────────────
-➻ ᴜsᴇ /repo ᴛᴏ ɢᴇᴛ ᴛʜᴇ sᴏᴜʀᴄᴇ ᴄᴏᴅᴇ ᴏғ ᴛʜᴇ ʙᴏᴛ!
+➻ Use /repo to get the source code of the bot!
 ──────────────
-➲ ᴀᴅᴅ ᴍᴇ ɪɴ ɢʀᴏᴜᴩꜱ ᴛᴏ ᴜꜱᴇ ꜰᴇᴀᴛᴜʀᴇꜱ.**
+➲ Add me in groups to use features.**
 """
 
 CHATBOT_READ = f"""**
-๏ ʜᴇʀᴇ ᴀʀᴇ ᴛʜᴇ ᴄᴏᴍᴍᴀɴᴅs ғᴏʀ ᴄʜᴀᴛʙᴏᴛ:
+๏ Here are the commands for chatbot:
 
-➻ /chatbot - ᴏᴘᴇɴs ᴏᴘᴛɪᴏns ᴛᴏ ᴇɴᴀʙʟᴇ ᴏʀ ᴅɪsᴀʙʟᴇ ᴛʜᴇ ᴄʜᴀᴛʙᴏᴛ.
+➻ /chatbot - opens options to enable or disable the chatbot.
 ──────────────
-➻ /ask - ᴀꜱᴋ ᴀɴʏᴛʜɪɴɢ ꜰʀᴏᴍ ᴄʜᴀᴛɢᴩᴛ
+➻ /ask - ask anything from ChatGPT
 ──────────────
-➻ /lang, /setlang - ᴏᴘᴇɴs ᴀ ᴍᴇɴᴜ ᴛᴏ sᴇʟᴇᴄᴛ ᴛʜᴇ ᴄʜᴀᴛ ʟᴀɴɢᴜᴀɢᴇ.  
+➻ /lang, /setlang - opens a menu to select the chat language.  
 ──────────────
-➻ /resetlang, /nolang - ʀᴇsᴇᴛs ᴛʜᴇ ʙᴏᴛ's ʟᴀɴɢᴜᴀɢᴇ ᴛᴏ ᴍɪxᴇᴅ ʟᴀɴɢᴜᴀɢᴇ.
+➻ /resetlang, /nolang - resets the bot's language to mixed language.
 ──────────────
-➻ /chatlang - ɢᴇᴛ ᴄᴜʀʀᴇɴᴛ ᴜꜱɪɴɢ ᴄʜᴀᴛ ʟᴀɴɢ ꜰᴏʀ ᴄʜᴀᴛ.
+➻ /chatlang - get current using chat lang for chat.
 ──────────────
-➻ /status - ᴄʜᴇᴄᴋ ᴄʜᴀᴛʙᴏᴛ ᴀᴄᴛɪᴠᴇ ᴏʀ ɴᴏᴛ.
+➻ /status - check chatbot active or not.
 ──────────────
-➻ /stats - ɢᴇᴛ ʙᴏᴛ ꜱᴛᴀᴛꜱ
+➻ /stats - get bot stats
 ──────────────
-➻ /clone [ ʙᴏᴛ ᴛᴏᴋᴇɴ ] - ᴛᴏ ᴄʟᴏɴᴇ ʏᴏᴜʀ ʙᴏᴛ.
+➻ /clone [ bot token ] - to clone your bot.
 ──────────────
-➻ /idclone [ ᴩʏʀᴏɢʀᴀᴍ ꜱᴛʀɪɴɢ ꜱᴇꜱꜱɪᴏɴ ] - ᴛᴏ ᴍᴀᴋᴇ ɪᴅ-ᴄʜᴀᴛʙᴏᴛ.
+➻ /idclone [ pyrogram string session ] - to make ID-chatbot.
 ──────────────
-➲ ᴀᴅᴅ ᴍᴇ ɪɴ ɢʀᴏᴜᴩꜱ ᴛᴏ ᴜꜱᴇ ꜰᴇᴀᴛᴜʀᴇꜱ.
+➲ Add me in groups to use features.
 **"""
 
-SOURCE_READ = f"**ʜᴇʏ, ᴛʜᴇ sᴏᴜʀᴄᴇ ᴄᴏᴅᴇ ᴏғ [{nexichat.name}](https://t.me/{nexichat.username}) ɪs ɢɪᴠᴇɴ ʙᴇʟᴏᴡ.**\n**ᴘʟᴇᴀsᴇ ғᴏʀᴋ ᴛʜᴇ ʀᴇᴘᴏ & ɢɪᴠᴇ ᴛʜᴇ sᴛᴀʀ ✯**\n**──────────────────**\n**ʜᴇʀᴇ ɪs ᴛʜᴇ [sᴏᴜʀᴄᴇ ᴄᴏᴅᴇ](https://github.com/amritraj78/KING-CHATBOT)**\n**──────────────────**\n**ɪғ ʏᴏᴜ ғᴀᴄᴇ ᴀɴʏ ᴘʀᴏʙʟᴇᴍ ᴛʜᴇɴ ᴄᴏɴᴛᴀᴄᴛ ᴀᴛ [sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ](https://t.me/{SUPPORT_GRP}).\n<b>||📡 ᴍᴀᴅᴇ ʙʏ ➪ [˹𝐊ɪɴɢᴅᴏᴍ˼](https://t.me/ll_KINGDOM_ll) 💞**||</b>"
+SOURCE_READ = f"**Hey, the source code of [{nexichat.name}](https://t.me/{nexichat.username}) is given below. Please fork the repo for your own use.**"
 
-ADMIN_READ = f"sᴏᴏɴ"
+ADMIN_READ = f"Soon"
 
 ABOUT_READ = f"""
-**➻ [{nexichat.name}](https://t.me/{nexichat.username}) ɪs ᴀɴ ᴀɪ ʙᴀsᴇᴅ ᴄʜᴀᴛ-ʙᴏᴛ.**
-**➻ [{nexichat.name}](https://t.me/{nexichat.username}) ʀᴇᴘʟɪᴇs ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴛᴏ ᴀ ᴜsᴇʀ.**
-**➻ ʜᴇʟᴘs ʏᴏᴜ ɪɴ ᴀᴄᴛɪᴠᴀᴛɪɴɢ ʏᴏᴜʀ ɢʀᴏᴜᴘs.**
-**➻ ᴡʀɪᴛᴛᴇɴ ɪɴ [ᴘʏᴛʜᴏɴ](https://www.python.org) ᴡɪᴛʜ [ᴍᴏɴɢᴏ-ᴅʙ](https://www.mongodb.com) ᴀs ᴀ ᴅᴀᴛᴀʙᴀsᴇ**
+**➻ [{nexichat.name}](https://t.me/{nexichat.username}) is an AI-based chat-bot.**
+**➻ [{nexichat.name}](https://t.me/{nexichat.username}) replies automatically to a user.**
+**➻ Helps you in activating your groups.**
+**➻ Written in [Python](https://www.python.org) with [Mongo-DB](https://www.mongodb.com) as a database**
 **──────────────**
-**➻ ᴄʟɪᴄᴋ ᴏɴ ᴛʜᴇ ʙᴜᴛᴛᴏɴs ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ғᴏʀ ɢᴇᴛᴛɪɴɢ ʙᴀsɪᴄ ʜᴇʟᴩ ᴀɴᴅ ɪɴғᴏ ᴀʙᴏᴜᴛ [{nexichat.name}](https://t.me/{nexichat.username})**
+**➻ Click on the buttons given below for getting basic help and info about [{nexichat.name}](https://t.me/{nexichat.username}).**
 """
