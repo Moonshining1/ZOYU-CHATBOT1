@@ -19,15 +19,15 @@ try:
 except ValueError:
     raise ValueError("OWNER_ID must be an integer")
 
-UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/villian26/VILLIAN-CHATBOT")
+UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/legendtosif/ZOYU-CHATBOT1")
 UPSTREAM_BRANCH = getenv("UPSTREAM_BRANCH", "main")
 
 # Support group and update channel
-SUPPORT_GRP = getenv("SUPPORT_GRP", "ll_KINGDOM_ll")
-UPDATE_CHNL = getenv("UPDATE_CHNL", "ll_IMPERIAL_ll")
+SUPPORT_GRP = getenv("SUPPORT_GRP", "ZOYU_SUPPORT")
+UPDATE_CHNL = getenv("UPDATE_CHNL", "THE_INCRICIBLE")
 
 # Owner's username and optional git token for private repositories
-OWNER_USERNAME = getenv("OWNER_USERNAME", "IT_AMRIT")
+OWNER_USERNAME = getenv("OWNER_USERNAME", "LEGEND_MICKEY")
 GIT_TOKEN = getenv("GIT_TOKEN", "")
 
 # For debugging purposes, you can print the loaded configuration
