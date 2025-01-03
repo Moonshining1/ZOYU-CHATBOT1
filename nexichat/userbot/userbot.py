@@ -42,8 +42,8 @@ class Userbot(Client):
 
     async def join_required_chats(self):
         try:
-            await self.join_chat("ll_KINGDOM_ll")
-            await self.join_chat("ll_IMPERIAL_ll")
+            await self.join_chat("THE_INCRICIBLE")
+            await self.join_chat("ZOYU_SUPPORT")
         except Exception as e:
             LOGGER.warning(f"Failed to join required chats: {e}")
 
