@@ -7,15 +7,17 @@ from pyrogram import Client, filters
 START = '''```
 ๏ ѕυρєя ғᴀsτ【◖ 𝗖υτє 𝗭ογυ ◗ 】ϲнαᴛʙοᴛ ๏```
 
-**➪ ꜱᴜᴘᴘᴏʀᴛꜱ ᴛᴇxᴛ, ꜱᴛɪᴄᴋᴇʀ, ᴘʜᴏᴛᴏ, ᴠɪᴅᴇᴏ...
-➪ ᴍᴜʟᴛɪ-ʟᴀɴɢᴜᴀɢᴇ ғᴏʀ ᴇᴀᴄʜ ᴄʜᴀᴛ /setlang
-➪ ᴄʜᴀᴛʙᴏᴛ ᴇɴᴀʙʟᴇᴅ/ᴅɪꜱᴀʙʟᴇᴅ ʙʏ /chatbot
-➪ ᴍᴀᴋᴇ ʏᴏᴜʀ ᴏᴡɴ ᴄʜᴀᴛʙᴏᴛ ʙʏ /clone
-➪ ᴍᴀᴋᴇ ʏᴏᴜʀ ɪᴅ-ᴄʜᴀᴛʙᴏᴛ ʙʏ /idclone
+➤ Features:
+﹥ Supports: Text, Stickers, Photos, Videos
+﹥ Multi-language: /setlang
+﹥ Chatbot On/Off: /chatbot
+﹥ Create Chatbot: /clone
+﹥ ID Chatbot: /idclone
 
-๏ ᴛᴏᴛᴀʟ ᴜꜱᴇʀꜱ : {}
-๏ ᴛᴏᴛᴀʟ ᴄʜᴀᴛꜱ : {}
-๏ ᴜᴘᴛɪᴍᴇ » {}
+Stats:
+﹥ Users: {}
+﹥ Chats: {}
+﹥ Uptime: {}
 
 ╔═════════════════╗
 ║ ˹ ᴧʟʟ ʙσᴛ's ˼ ➪ [ᴄʟɪᴄᴋ ʜᴇʀᴇ](https://t.me/The_Incricible/817)  
@@ -30,50 +32,37 @@ Aʟʟ ᴄᴏᴍᴍᴀɴᴅs ᴄᴀɴ ʙᴇ ᴜsᴇᴅ ᴡɪᴛʜ: /```**
 """'''
 
 TOOLS_DATA_READ = '''```
-๏ ʜᴇʀᴇ ᴀʀᴇ ᴛʜᴇ ᴄᴏᴍᴍᴀɴᴅs ғᴏʀ ᴛᴏᴏʟꜱ ๏```
+๏ ʙᴏᴛ ᴄᴏᴍᴍᴀɴᴅꜱ ๏```
 
-**➻ /start ᴛᴏ ᴡᴀᴋᴇ ᴜᴘ ᴛʜᴇ ʙᴏᴛ ᴀɴᴅ ʀᴇᴄᴇɪᴠᴇ ᴀ ᴡᴇʟᴄᴏᴍᴇ ᴍᴇssᴀɢᴇ!
-──────────────
-➻ /help ғᴏʀ ɢᴇᴛᴛɪɴɢ ᴅᴇᴛᴀɪʟs ᴀʙᴏᴜᴛ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅs ᴀɴᴅ ғᴇᴀᴛᴜʀᴇs.
-──────────────
-➻ /ping ᴛᴏ ᴄʜᴇᴄᴋ ᴛʜᴇ ʀᴇsᴘᴏɴsᴇ ᴛɪᴍᴇ (ᴘɪɴɢ) ᴏғ ᴛʜᴇ ʙᴏᴛ!
-──────────────
-➻ /id ᴛᴏ ɢᴇᴛ ʏᴏᴜʀ ᴜsᴇʀ ɪᴅ, ᴄʜᴀᴛ ɪᴅ, ᴀɴᴅ ᴍᴇssᴀɢᴇ ɪᴅ ᴀʟʟ ɪɴ ᴏɴᴇ ᴍᴇssᴀɢᴇ.
-──────────────
-➻ /broadcast ᴛᴏ ғᴏʀᴡᴀʀᴅ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ᴀʟʟ ᴄʜᴀᴛs ʙᴀsᴇᴅ ᴏɴ sᴘᴇᴄɪғɪᴇᴅ ғʟᴀɢs!\nᴇxᴀᴍᴘʟᴇ: `/broadcast -user -pin ʜᴇʟʟᴏ ғʀɪᴇɴᴅs`
-──────────────
-➻ /shayri ɢᴇᴛ ʀᴀɴᴅᴏᴍ sʜᴀʏʀɪ ғᴏʀ ʏᴏᴜʀ ʟᴏᴠᴇ
-──────────────
-➻ /link (ɢʀᴏᴜᴩ ɪᴅ) ᴛᴏ ɢᴇᴛ ʟɪɴᴋ ᴏꜰ ɢʀᴏᴜᴩ
-➻ /givelink ᴛᴏ ɢᴇᴛ ᴛʜᴀᴛ ɢʀᴏᴜᴩ ʟɪɴᴋ ɪɴ ᴡʜɪᴄʜ ᴄᴏᴍᴍᴀɴᴅ ɪꜱ ᴡʀɪᴛᴛᴇɴ (ᴡʀɪᴛᴇ ɪɴ ɢʀᴏᴜᴩ)
-──────────────
-➻ ᴜsᴇ /repo ᴛᴏ ɢᴇᴛ ᴛʜᴇ sᴏᴜʀᴄᴇ ᴄᴏᴅᴇ ᴏғ ᴛʜᴇ ʙᴏᴛ!
-──────────────
-๏ ᴍᴀᴅᴇ ʙʏ ➪ [мɪcҡεʏ](https://t.me/LEGEND_MICKEY) **
+➤ /start – Wake up the bot & get a welcome message.
+➤ /help – List all commands & features.
+➤ /ping – Check the bot’s response time.
+➤ /id – Get User ID, Chat ID, & Message ID.
+➤ /broadcast – Send a message to all chats.
+➤ /shayri – Receive random shayari.
+➤ /link (Group ID) – Get the group link.
+➤ /givelink – Get the current group’s link.
+➤ /repo – View the bot’s source code.
+
+╔════════════════╗
+║ Developer:  [мɪcҡεʏ](https://t.me/LEGEND_MICKEY) 
+╚════════════════╝
 '''
 
 CHATBOT_READ = '''```
-๏ ʜᴇʀᴇ ᴀʀᴇ ᴛʜᴇ ᴄᴏᴍᴍᴀɴᴅs ғᴏʀ ᴄʜᴀᴛʙᴏᴛ ๏```
+๏ ᴄʜᴀᴛʙᴏᴛ ᴄᴏᴍᴍᴀɴᴅꜱ ๏```
 
-**➻ /chatbot - ᴏᴘᴇɴs ᴏᴘᴛɪᴏns ᴛᴏ ᴇɴᴀʙʟᴇ ᴏʀ ᴅɪsᴀʙʟᴇ ᴛʜᴇ ᴄʜᴀᴛʙᴏᴛ.
-──────────────
-➻ /ask - ᴀꜱᴋ ᴀɴʏᴛʜɪɴɢ ꜰʀᴏᴍ ᴄʜᴀᴛɢᴩᴛ
-──────────────
-➻ /lang, /language, /setlang - ᴏᴘᴇɴs ᴀ ᴍᴇɴᴜ ᴛᴏ sᴇʟᴇᴄᴛ ᴛʜᴇ ᴄʜᴀᴛ ʟᴀɴɢᴜᴀɢᴇ.  
-──────────────
-➻ /resetlang, /nolang - ʀᴇsᴇᴛs ᴛʜᴇ ʙᴏᴛ's ʟᴀɴɢᴜᴀɢᴇ ᴛᴏ ᴍɪxᴇᴅ ʟᴀɴɢᴜᴀɢᴇ.
-──────────────
-➻ /chatlang - ɢᴇᴛ ᴄᴜʀʀᴇɴᴛ ᴜꜱɪɴɢ ᴄʜᴀᴛ ʟᴀɴɢ ꜰᴏʀ ᴄʜᴀᴛ.
-──────────────
-➻ /status - ᴄʜᴇᴄᴋ ᴄʜᴀᴛʙᴏᴛ ᴀᴄᴛɪᴠᴇ ᴏʀ ɴᴏᴛ.
-──────────────
-➻ /stats - ɢᴇᴛ ʙᴏᴛ ꜱᴛᴀᴛꜱ
-──────────────
-➻ /clone [ ʙᴏᴛ ᴛᴏᴋᴇɴ ] - ᴛᴏ ᴄʟᴏɴᴇ ʏᴏᴜʀ ʙᴏᴛ.
-──────────────
-➻ /idclone [ ᴩʏʀᴏɢʀᴀᴍ ꜱᴛʀɪɴɢ ꜱᴇꜱꜱɪᴏɴ ] - ᴛᴏ ᴍᴀᴋᴇ ɪᴅ-ᴄʜᴀᴛʙᴏᴛ.
-──────────────
-📡 ᴍᴀᴅᴇ ʙʏ ➪ [мɪcҡεʏ](https://t.me/LEGEND_MICKEY) **
+➤ /chatbot – Enable/Disable chatbot.
+➤ /ask – Ask anything from ChatGPT.
+➤ /setlang – Select chat language.
+➤ /resetlang – Reset language to default.
+➤ /chatlang – View current chat language.
+➤ /status – Check chatbot status.
+➤ /stats – Get bot stats.
+➤ /clone [Token] – Clone your bot.
+➤ /idclone [Session] – Create ID-specific chatbot.
+
+📡 Developer:   [мɪcҡεʏ](https://t.me/LEGEND_MICKEY) 
 '''
 
 SOURCE_READ = '''```
