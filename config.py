@@ -15,19 +15,19 @@ MONGO_URL = getenv("MONGO_URL")
 
 # Convert OWNER_ID to int and handle errors
 try:
-    OWNER_ID = int(getenv("OWNER_ID", "7745014754"))
+    OWNER_ID = int(getenv("OWNER_ID", "7297381612"))
 except ValueError:
     raise ValueError("OWNER_ID must be an integer")
 
-UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/legendtosif/ZOYU-CHATBOT1")
+UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/Moonshining1/ZOYU-CHATBOT1")
 UPSTREAM_BRANCH = getenv("UPSTREAM_BRANCH", "main")
 
 # Support group and update channel
-SUPPORT_GRP = getenv("SUPPORT_GRP", "ZOYU_SUPPORT")
-UPDATE_CHNL = getenv("UPDATE_CHNL", "THE_INCRICIBLE")
+SUPPORT_GRP = getenv("SUPPORT_GRP", "grandxmasti")
+UPDATE_CHNL = getenv("UPDATE_CHNL", "shayariAlfaazonKaAaina")
 
 # Owner's username and optional git token for private repositories
-OWNER_USERNAME = getenv("OWNER_USERNAME", "LEGEND_MICKEY")
+OWNER_USERNAME = getenv("OWNER_USERNAME", "Moonshining3")
 GIT_TOKEN = getenv("GIT_TOKEN", "")
 
 # For debugging purposes, you can print the loaded configuration
