@@ -19,9 +19,9 @@ async def must_join_channel(app: Client, msg: Message):
 
         try:
             await msg.reply_photo(
-                photo="https://envs.sh/Tn_.jpg",
-                caption=(f"**👋 ʜᴇʟʟᴏ {msg.from_user.mention},**\n\n"
-                         f"**ʏᴏᴜ ɴᴇᴇᴅ ᴛᴏ ᴊᴏɪɴ ᴛʜᴇ [ᴄʜᴀɴɴᴇʟ]({link}) ᴛᴏ sᴇɴᴅ ᴍᴇssᴀɢᴇs ɪɴ ᴛʜɪs ᴄʜᴀᴛ.**"),
+                photo="https://files.catbox.moe/vwzw0q.jpg",
+                caption=(f"**👋 Hey {msg.from_user.mention},**\n\n"
+                         f"**Join our [Channel](https://t.me/shayariAlfaazonKaAaina) to start messaging here. It's quick and easy!**"),
                 reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("๏ ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ ๏", url=link)]])
             )
             await msg.stop_propagation()
