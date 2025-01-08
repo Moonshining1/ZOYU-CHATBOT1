@@ -20,9 +20,9 @@ async def must_join_channel(client: Client, msg: Message):
             link = chat_info.invite_link
         try:
             await msg.reply_photo(
-                photo="https://envs.sh/Tn_.jpg",
+                photo="https://files.catbox.moe/vwzw0q.jpg,
                 caption=(f"**👋 ʜᴇʟʟᴏ {msg.from_user.mention},**\n\n"
-                         f"**ʏᴏᴜ ɴᴇᴇᴅ ᴛᴏ ᴊᴏɪɴ ᴛʜᴇ [ᴄʜᴀɴɴᴇʟ]({link}) ᴛᴏ sᴇɴᴅ ᴍᴇssᴀɢᴇs ʜᴇʀᴇ.**"),
+                         f"**ʏᴏᴜ ɴᴇᴇᴅ ᴛᴏ ᴊᴏɪɴ ᴛʜᴇ [ᴄʜᴀɴɴᴇʟ](https://t.me/shayariAlfaazonKaAaina) ᴛᴏ sᴇɴᴅ ᴍᴇssᴀɢᴇs ʜᴇʀᴇ.**"),
                 reply_markup=InlineKeyboardMarkup(
                     [[InlineKeyboardButton("๏ ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ ๏", url=link)]])
             )
@@ -31,3 +31,4 @@ async def must_join_channel(client: Client, msg: Message):
             pass
     except ChatAdminRequired:
         print(f"๏ᴘʀᴏᴍᴏᴛᴇ ᴍᴇ ᴀs ᴀɴ ᴀᴅᴍɪɴ ɪɴ ᴛʜᴇ ᴍᴜsᴛ_Jᴏɪɴ ᴄʜᴀᴛ ๏: {MUST_JOIN} !")
+
